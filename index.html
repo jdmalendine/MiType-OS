@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MiType+ Cognitive OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      @keyframes square-tl {
+        0%, 100% { transform: translate(32px, 32px) scale(0); }
+        50% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes square-tr {
+        0%, 100% { transform: translate(-32px, 32px) scale(0); }
+        50% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes square-bl {
+        0%, 100% { transform: translate(32px, -32px) scale(0); }
+        50% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes square-br {
+        0%, 100% { transform: translate(-32px, -32px) scale(0); }
+        50% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+      }
+      @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      }
+      .animate-pulse-green {
+        animation: pulse-green 1s ease-out;
+      }
+      .animate-pulse-red {
+        animation: pulse-red 1s ease-out;
+      }
+
+      :root, .theme-normal {
+        --color-brand-bg: #111827;
+        --color-brand-surface: #1f2937;
+        --color-brand-border: #374151;
+        --color-brand-primary: #6366f1;
+        --color-brand-primary-hover: #8183f5;
+        --color-brand-secondary: #ec4899;
+        --color-brand-secondary-hover: #f065a9;
+        --color-brand-text: #f9fafb;
+        --color-brand-text-muted: #9ca3af;
+        --color-hbdi-blue: #3B82F6;
+        --color-hbdi-green: #22C55E;
+        --color-hbdi-red: #EF4444;
+        --color-hbdi-yellow: #EAB308;
+        --color-red-500: #EF4444;
+        --color-green-500: #22C55E;
+        --color-yellow-500: #EAB308;
+      }
+      .theme-monochrome {
+        --color-brand-primary: #9ca3af;
+        --color-brand-primary-hover: #6b7280;
+        --color-brand-secondary: #6b7280;
+        --color-brand-secondary-hover: #4b5563;
+        --color-hbdi-blue: #d1d5db;
+        --color-hbdi-green: #9ca3af;
+        --color-hbdi-red: #6b7280;
+        --color-hbdi-yellow: #f3f4f6;
+        --color-red-500: #9ca3af;
+        --color-green-500: #b0b0b0;
+        --color-yellow-500: #d1d5db;
+      }
+      .theme-protanopia { /* Red-blind */
+        --color-brand-primary: #5691F5;
+        --color-brand-primary-hover: #437DD4;
+        --color-brand-secondary: #E0E250;
+        --color-brand-secondary-hover: #C7C948;
+        --color-hbdi-blue: #5691F5;
+        --color-hbdi-green: #E0E250;
+        --color-hbdi-red: #7B742B;
+        --color-hbdi-yellow: #EAB308;
+        --color-red-500: #7B742B;
+        --color-green-500: #E0E250;
+        --color-yellow-500: #EAB308;
+      }
+      .theme-deuteranopia { /* Green-blind */
+        --color-brand-primary: #6A80F5;
+        --color-brand-primary-hover: #566CDD;
+        --color-brand-secondary: #C0C250;
+        --color-brand-secondary-hover: #ADAF48;
+        --color-hbdi-blue: #6A80F5;
+        --color-hbdi-green: #C0C250;
+        --color-hbdi-red: #A08C30;
+        --color-hbdi-yellow: #EAB308;
+        --color-red-500: #A08C30;
+        --color-green-500: #C0C250;
+        --color-yellow-500: #EAB308;
+      }
+      .theme-tritanopia { /* Blue-blind */
+        --color-brand-primary: #2AB0D5;
+        --color-brand-primary-hover: #2497B6;
+        --color-brand-secondary: #30D5C8;
+        --color-brand-secondary-hover: #29B8AD;
+        --color-hbdi-blue: #009E73;
+        --color-hbdi-green: #30D5C8;
+        --color-hbdi-red: #FF4136;
+        --color-hbdi-yellow: #FFE4E1;
+        --color-red-500: #FF4136;
+        --color-green-500: #30D5C8;
+        --color-yellow-500: #FFE4E1;
+      }
+      body {
+        background-color: var(--color-brand-bg);
+        color: var(--color-brand-text);
+        font-family: 'Poppins', sans-serif;
+      }
+      .victory-text {
+        font-size: clamp(2.5rem, 10vw, 4.5rem);
+        line-height: 1.1;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              'brand-bg': 'var(--color-brand-bg)',
+              'brand-surface': 'var(--color-brand-surface)',
+              'brand-border': 'var(--color-brand-border)',
+              'brand-primary': 'var(--color-brand-primary)',
+              'brand-primary-hover': 'var(--color-brand-primary-hover)',
+              'brand-secondary': 'var(--color-brand-secondary)',
+              'brand-secondary-hover': 'var(--color-brand-secondary-hover)',
+              'brand-text': 'var(--color-brand-text)',
+              'brand-text-muted': 'var(--color-brand-text-muted)',
+              'hbdi-blue': 'var(--color-hbdi-blue)',
+              'hbdi-green': 'var(--color-hbdi-green)',
+              'hbdi-red': 'var(--color-hbdi-red)',
+              'hbdi-yellow': 'var(--color-hbdi-yellow)',
+              'red-500': 'var(--color-red-500)',
+              'green-500': 'var(--color-green-500)',
+              'yellow-500': 'var(--color-yellow-500)'
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.548.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+    "jspdf": "https://esm.sh/jspdf@2.5.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-bg text-brand-text">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
