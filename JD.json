@@ -1,0 +1,43 @@
+{
+    "text": "I\u2019ve joined a new gym and am already loving the energy\u2014pushing myself to new limits feels amazing. This morning, I laced up for an early run under a sun shower, and the sight of a double rainbow lit up the sky\u2014pure magic! It\u2019s moments like these that recharge me. Plus, my second phone interview went brilliantly, and I\u2019m thrilled to announce I\u2019m now a literacy coach! Ready to inspire and support others on their learning journeys. Grateful for every step forward.",
+    "scores": [
+        [
+            "I\u2019ve joined a new gym and am already loving the energy\u2014pushing myself to new limits feels amazing.",
+            0.8271
+        ],
+        [
+            "This morning, I laced up for an early run under a sun shower, and the sight of a double rainbow lit up the sky\u2014pure magic!",
+            0.0
+        ],
+        [
+            "It\u2019s moments like these that recharge me.",
+            0.3612
+        ],
+        [
+            "Plus, my second phone interview went brilliantly, and I\u2019m thrilled to announce I\u2019m now a literacy coach!",
+            0.8016
+        ],
+        [
+            "Ready to inspire and support others on their learning journeys.",
+            0.836
+        ],
+        [
+            "Grateful for every step forward.",
+            0.4588
+        ]
+    ],
+    "summary": {
+        "tonal_shifts_raw": [
+            "Shift to negative (-0.83) near 'this morning, i laced up ...' (unit 2).",
+            "Shift to positive (+0.44) near 'plus, my second phone int...' (unit 4)."
+        ],
+        "tonal_shifts_summary": "Begins 'I\u2019ve joined a new gym and...' (positive).  Shifts: shift to negative (-0.83) near 'This morning, I laced up ...' (unit 2); shift to positive (+0.44) near 'Plus, my second phone int...' (unit 4).",
+        "emotional_intensity": {
+            "high_pos": 3,
+            "high_neg": 0,
+            "low": 1
+        },
+        "overall_trend": "stable",
+        "average_sentiment": 0.54745
+    }
+}
