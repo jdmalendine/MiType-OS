@@ -2,7 +2,29 @@
 
 Personal Mi Type assessment system + Tonal Flow Map (TFM) analysis tools.
 
-## Installation
+## Prerequisites
+
+You need **Python 3.9 or newer** installed.
+
+**On macOS (recommended):**
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Python
+brew install python
+
+# Verify
+python3 --version
+```
+
+**Other platforms:**
+- Download the official installer from https://www.python.org/downloads/
+- Or use your system's package manager.
+
+After installing Python, it's strongly recommended to use a virtual environment for this project.
+
+## Installation (the package)
 
 ### From PyPI (once published)
 
