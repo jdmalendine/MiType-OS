@@ -1,0 +1,9 @@
+# Mi Type + TFM dependencies
+# Install with: pip install -r requirements.txt
+
+vaderSentiment>=3.3.2
+nltk>=3.8.1
+numpy>=1.26.0
+
+# Optional / future
+# tinytroupe  # for the AI coach feature (if/when real integration is added)
