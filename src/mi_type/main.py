@@ -15,7 +15,7 @@ else:
 
 # Import your questions (assuming these exist in mi_type_assessments.py)
 try:
-    from mi_type_assessments import ALL_QUESTIONS, HBDI_QUESTIONS, MBTI_QUESTIONS
+    from .assessments import ALL_QUESTIONS, HBDI_QUESTIONS, MBTI_QUESTIONS
 except ImportError:
     print("Error: mi_type_assessments.py not found or contains errors.")
     print("Please ensure you have ALL_QUESTIONS, HBDI_QUESTIONS, and MBTI_QUESTIONS defined.")
@@ -23,7 +23,7 @@ except ImportError:
 
 # Import your Mi Type profiles and helper functions (assuming these exist in mi_type_profiles.py)
 try:
-    from mi_type_profiles import MI_TYPE_PROFILES, get_profile, list_all_profiles, determine_mi_type
+    from .profiles import MI_TYPE_PROFILES, get_profile, list_all_profiles, determine_mi_type, determine_mi_type
 except ImportError:
     print("Error: mi_type_profiles.py not found or contains errors.")
     print("Please ensure you have MI_TYPE_PROFILES, get_profile, and list_all_profiles defined.")
@@ -660,7 +660,7 @@ def display_single_profile_details(profile_name):
 def run_assessment_quiz(previous_answers=None, start_index=0):
     """Run the HBDI + MBTI style Mi Type assessment.
 
-    Uses the questions from mi_type_assessments (with their score_maps)
+    Uses the questions from mi_type.assessments (with their score_maps)
     and the new determine_mi_type() bridge to produce a rich result
     based on the profiles in mi_type_profiles.py.
 

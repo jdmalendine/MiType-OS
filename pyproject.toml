@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mi-type"
+version = "0.1.0"
+description = "Mi Type personal assessment system with Tonal Flow Map (TFM) analysis tools."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+  {name = "Jordaniel Malendine"}
+]
+requires-python = ">=3.9"
+dependencies = []  # Core Mi Type assessment is lightweight / stdlib
+
+[project.optional-dependencies]
+tfm = [
+    "vaderSentiment>=3.3.2",
+    "nltk>=3.8.1",
+    "numpy>=1.26.0",
+]
+
+[project.scripts]
+mitype = "mi_type.cli:run_assessment"
+mite = "mi_type.cli:run_combined"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"mi_type" = ["*.json", "*.txt"]
+
+[project.urls]
+Homepage = "https://github.com/jdmalendine/MiType-OS"
+Repository = "https://github.com/jdmalendine/MiType-OS"
