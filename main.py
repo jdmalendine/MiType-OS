@@ -23,7 +23,7 @@ except ImportError:
 
 # Import your Mi Type profiles and helper functions (assuming these exist in mi_type_profiles.py)
 try:
-    from mi_type_profiles import MI_TYPE_PROFILES, get_profile, list_all_profiles
+    from mi_type_profiles import MI_TYPE_PROFILES, get_profile, list_all_profiles, determine_mi_type
 except ImportError:
     print("Error: mi_type_profiles.py not found or contains errors.")
     print("Please ensure you have MI_TYPE_PROFILES, get_profile, and list_all_profiles defined.")
@@ -655,6 +655,102 @@ def display_single_profile_details(profile_name):
         print(f"\nError: Profile '{profile_name}' not found.")
 
     input("\nPress Enter to return to profile menu...")
+
+
+def run_assessment_quiz(previous_answers=None, start_index=0):
+    """Run the HBDI + MBTI style Mi Type assessment.
+
+    Uses the questions from mi_type_assessments (with their score_maps)
+    and the new determine_mi_type() bridge to produce a rich result
+    based on the profiles in mi_type_profiles.py.
+
+    Supports resume via previous_answers + start_index (for "Load Saved Progress").
+
+    Returns a result dict (or None on early exit) that the rest of the
+    app stores in last_session_answers and passes to the coach/export/analyze.
+    """
+    answers = list(previous_answers) if previous_answers else []
+    questions = ALL_QUESTIONS
+
+    i = start_index
+    total = len(questions)
+
+    try:
+        while i < total:
+            q = questions[i]
+            clear_screen()
+            print(f"\n--- Question {i + 1} of {total} ---")
+            print(q.get("question", ""))
+
+            opts = q.get("options", {})
+            # Show options in order
+            for key in sorted(opts.keys()):
+                print(f"  {key}) {opts[key]}")
+
+            while True:
+                choice = input("Your choice (letter): ").strip().upper()
+                if choice in opts:
+                    answers.append(choice)
+                    break
+                print(f"Invalid choice. Please enter one of: {', '.join(sorted(opts.keys()))}")
+
+            i += 1
+
+        # Tally scores from the score_maps
+        hbdi_scores = {"hbdi_a": 0, "hbdi_b": 0, "hbdi_c": 0, "hbdi_d": 0}
+        mbti_scores = {
+            "mbti_e": 0, "mbti_i": 0, "mbti_s": 0, "mbti_n": 0,
+            "mbti_t": 0, "mbti_f": 0, "mbti_j": 0, "mbti_p": 0
+        }
+
+        for ans, q in zip(answers, questions):
+            sm = q.get("score_map", {}).get(ans, {})
+            for k, v in sm.items():
+                if k in hbdi_scores:
+                    hbdi_scores[k] += v
+                elif k in mbti_scores:
+                    mbti_scores[k] += v
+
+        # Use the scoring bridge (task 1)
+        matches = determine_mi_type(hbdi_scores, mbti_scores)
+        best_name = matches[0][0] if matches else "Undetermined"
+        best_profile = matches[0][2] if matches else None
+
+        # Show rich result
+        clear_screen()
+        print("\n" + "=" * 50)
+        print("         ASSESSMENT RESULTS")
+        print("=" * 50)
+        print(f"\nYour primary Mi Type: {best_name}\n")
+
+        if best_profile:
+            print("Overview:")
+            print("  " + best_profile.get("overview", "")[:300] + ("..." if len(best_profile.get("overview", "")) > 300 else ""))
+            strengths = best_profile.get("strengths", [])
+            if strengths:
+                print("\nKey Strengths: " + ", ".join(strengths[:6]))
+            egot = best_profile.get("egotends", [])
+            if egot:
+                print("\nWatch-outs (Ego Tends):")
+                for t in egot[:2]:
+                    print(f"  - {t}")
+            print(f"\nChange Threshold note: {best_profile.get('change_threshold', '')[:200]}...")
+
+        print("\n" + "=" * 50)
+        input("\nPress Enter to continue...")
+
+        return {
+            "answers": answers,
+            "hbdi_scores": hbdi_scores,
+            "mbti_scores": mbti_scores,
+            "mi_type": best_name,
+            "profile": best_profile,
+            "matches": matches[:5]  # top few for the caller if wanted
+        }
+
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nAssessment interrupted.")
+        return None
 
 
 def main_app():
