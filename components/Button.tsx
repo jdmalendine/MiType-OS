@@ -7,12 +7,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', className = '', ...props }) => {
-  const baseClasses = 'px-4 py-2 rounded-md font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-bg disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'px-6 py-2.5 rounded-xl font-bold transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm';
   
   const variantClasses = {
-    primary: 'bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary',
-    secondary: 'bg-brand-secondary hover:bg-brand-secondary-hover focus:ring-brand-secondary',
-    danger: 'bg-red-600 hover:bg-red-500 focus:ring-red-600',
+    primary: 'bg-transparent border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-text shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)]',
+    secondary: 'bg-transparent border-2 border-brand-secondary text-brand-secondary hover:bg-brand-secondary hover:text-brand-text shadow-[0_0_15px_rgba(236,72,153,0.4)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)]',
+    danger: 'bg-transparent border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-brand-text shadow-[0_0_15px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)]',
   };
 
   return (

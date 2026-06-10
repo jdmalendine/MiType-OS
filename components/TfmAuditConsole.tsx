@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
+import { ClipboardList } from 'lucide-react';
 import Card from './Card';
 import * as geminiService from '../services/geminiService';
 import Button from './Button';
+import { UserProfile } from '../types';
 
 // Comprehensive Linguistic Marker Implementation
 // 1. Agency and Accountability Markers -> Systemic Friction
@@ -27,8 +29,11 @@ const valenceLexicon: { [key: string]: number } = {
     'fuck': -3, 'problem': -2, 'awful': -2, 'terrible': -2, 'impossible': -2, 'fail': -2, 'mistake': -2, 'disaster': -3, 'sucks': -2, 'issue': -1, 'bad': -1, 'hate': -2, 'concern': -1, 'friction': -2, 'delay': -1, 'difficult': -1, 'constraint': -1, 'unfortunately': -1, 'ugh': -1, "oh no": -1
 };
 
+interface TfmAuditConsoleProps {
+    userProfile: UserProfile;
+}
 
-const TfmAuditConsole: React.FC = () => {
+const TfmAuditConsole: React.FC<TfmAuditConsoleProps> = ({ userProfile }) => {
     const [communicationData, setCommunicationData] = useState('');
     const [auditResults, setAuditResults] = useState<{
         vagueCount: number;
@@ -79,7 +84,7 @@ const TfmAuditConsole: React.FC = () => {
         setIsInterpreting(true);
         setInterpretationError('');
         try {
-            const result = await geminiService.interpretFrictionMarkers(communicationData, auditResults);
+            const result = await geminiService.interpretFrictionMarkers(communicationData, auditResults, userProfile);
             setInterpretation(result);
         } catch (e) {
             console.error(e);
@@ -90,70 +95,82 @@ const TfmAuditConsole: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-10">
+             <div className="flex items-center gap-4 text-3xl font-black font-header tracking-tighter italic">
+                <div className="p-3 glass-panel rounded-xl text-brand-primary shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                    <ClipboardList size={32} />
+                </div>
+                <h1>TONAL FLOW MAPPER</h1>
+            </div>
+
             <Card>
-                <h1 className="text-2xl font-bold mb-2">TFM Audit Console</h1>
-                <p className="text-brand-text-muted">Analyze team communication for hidden friction markers.</p>
+                <h2 className="text-2xl font-black mb-4 flex items-center gap-3 font-header tracking-tight italic"><ClipboardList className="text-brand-primary" /> NEURAL LINGUISTIC ANALYSIS</h2>
+                <p className="text-brand-text-muted leading-relaxed font-medium max-w-3xl">Analyze team communication for hidden friction markers and systemic cognitive load. All data is processed locally with forensic precision.</p>
             </Card>
 
             <Card>
-                <h2 className="text-xl font-bold mb-4">Communication Data Input</h2>
-                <textarea 
-                  value={communicationData}
-                  onChange={(e) => setCommunicationData(e.target.value)}
-                  className="w-full h-48 bg-brand-bg text-brand-text p-3 rounded-lg border border-brand-border focus:outline-none focus:ring-2 focus:ring-brand-primary" 
-                  placeholder="Paste anonymized team communication text here for TFM analysis..."></textarea>
+                <h2 className="text-lg font-black mb-4 font-header tracking-tight uppercase italic">Communication Data Input</h2>
+                <div className="relative group">
+                    <textarea 
+                      value={communicationData}
+                      onChange={(e) => setCommunicationData(e.target.value)}
+                      className="w-full h-64 bg-white/5 text-brand-text p-6 rounded-2xl border border-brand-border/30 focus:outline-none focus:border-brand-primary/50 transition-all duration-300 font-data text-sm leading-relaxed resize-none shadow-inner" 
+                      placeholder="Paste anonymized team communication text here for forensic Tonal Flow analysis..."></textarea>
+                    <div className="absolute bottom-4 right-4 text-[10px] font-data text-brand-text-muted uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                        Forensic Mode Active
+                    </div>
+                </div>
                 <Button 
                     onClick={runAudit}
                     disabled={!communicationData.trim()}
-                    className="mt-4 w-full">
-                    Run TFM Audit
+                    className="mt-6 w-full py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                    Run Tonal Flow Audit
                 </Button>
             </Card>
             
             {auditResults && (
                 <Card>
-                    <h2 className="text-xl font-bold mb-4">Organizational Friction Markers</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-                        <div className="bg-brand-bg p-4 rounded-lg">
-                            <p className="text-lg font-semibold text-hbdi-yellow">Cognitive Friction</p>
-                            <p className="text-sm text-brand-text-muted">Vague Language</p>
-                            <div className="mt-2 text-5xl font-extrabold text-white">{auditResults.vagueCount}</div>
+                    <h2 className="text-xl font-black mb-8 font-header tracking-tight uppercase italic text-center">Organizational Friction Markers</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="glass-panel p-6 rounded-2xl text-center border-t-2 border-hbdi-yellow/30 shadow-[0_0_20px_rgba(255,215,0,0.05)]">
+                            <p className="text-xs font-black text-hbdi-yellow uppercase tracking-widest mb-1">Cognitive Friction</p>
+                            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest mb-4">Vague Language</p>
+                            <div className="text-6xl font-black text-brand-text font-header tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{auditResults.vagueCount}</div>
                         </div>
-                        <div className="bg-brand-bg p-4 rounded-lg">
-                            <p className="text-lg font-semibold text-hbdi-red">Emotional Friction</p>
-                            <p className="text-sm text-brand-text-muted">Negativity</p>
-                            <div className="mt-2 text-5xl font-extrabold text-white">{auditResults.negativeCount}</div>
+                        <div className="glass-panel p-6 rounded-2xl text-center border-t-2 border-hbdi-red/30 shadow-[0_0_20px_rgba(239,68,68,0.05)]">
+                            <p className="text-xs font-black text-hbdi-red uppercase tracking-widest mb-1">Emotional Friction</p>
+                            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest mb-4">Negativity</p>
+                            <div className="text-6xl font-black text-brand-text font-header tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{auditResults.negativeCount}</div>
                         </div>
-                        <div className="bg-brand-bg p-4 rounded-lg">
-                            <p className="text-lg font-semibold text-hbdi-blue">Systemic Friction</p>
-                            <p className="text-sm text-brand-text-muted">Avoidance</p>
-                            <div className="mt-2 text-5xl font-extrabold text-white">{auditResults.avoidanceCount}</div>
+                        <div className="glass-panel p-6 rounded-2xl text-center border-t-2 border-hbdi-blue/30 shadow-[0_0_20px_rgba(59,130,246,0.05)]">
+                            <p className="text-xs font-black text-hbdi-blue uppercase tracking-widest mb-1">Systemic Friction</p>
+                            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest mb-4">Avoidance</p>
+                            <div className="text-6xl font-black text-brand-text font-header tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{auditResults.avoidanceCount}</div>
                         </div>
-                         <div className="bg-brand-bg p-4 rounded-lg">
-                            <p className="text-lg font-semibold text-hbdi-green">Valence Score</p>
-                            <p className="text-sm text-brand-text-muted">Sentiment</p>
-                            <div className="mt-2 text-5xl font-extrabold text-white">{auditResults.valenceScore.toFixed(2)}</div>
+                         <div className="glass-panel p-6 rounded-2xl text-center border-t-2 border-hbdi-green/30 shadow-[0_0_20px_rgba(34,197,94,0.05)]">
+                            <p className="text-xs font-black text-hbdi-green uppercase tracking-widest mb-1">Valence Score</p>
+                            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest mb-4">Sentiment</p>
+                            <div className="text-6xl font-black text-brand-text font-header tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{auditResults.valenceScore.toFixed(2)}</div>
                         </div>
                     </div>
                     
-                    <div className="mt-8 text-center">
+                    <div className="mt-12 text-center">
                         <Button 
                             onClick={handleInterpret}
                             disabled={isInterpreting}
                             variant="secondary"
-                            className="flex items-center justify-center mx-auto"
+                            className="flex items-center justify-center mx-auto py-4 px-10 text-lg font-black tracking-widest uppercase shadow-[0_0_20px_rgba(236,72,153,0.2)]"
                         >
                             {isInterpreting ? 'Interpreting...' : 'Ask Mi to Interpret Results'}
                         </Button>
                     </div>
 
-                    {interpretationError && <p className="text-red-500 text-center mt-4">{interpretationError}</p>}
+                    {interpretationError && <p className="text-red-500 text-center mt-6 font-bold uppercase tracking-widest text-xs">{interpretationError}</p>}
 
                     {interpretation && (
-                        <div className="bg-brand-bg p-4 rounded-lg mt-8">
-                            <h3 className="text-lg font-semibold text-brand-secondary">Mi's Interpretation</h3>
-                            <div className="prose prose-invert mt-4 text-brand-text-muted max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: interpretation.replace(/\n/g, '<br />') }}></div>
+                        <div className="glass-panel p-8 rounded-3xl mt-12 border border-brand-primary/20 shadow-[0_0_30px_rgba(99,102,241,0.1)]">
+                            <h3 className="text-xl font-black text-brand-primary font-header tracking-tight uppercase italic mb-6">Mi's Interpretation</h3>
+                            <div className="prose prose-invert mt-4 text-brand-text-muted max-w-none whitespace-pre-wrap font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: interpretation.replace(/\n/g, '<br />') }}></div>
                         </div>
                     )}
                 </Card>

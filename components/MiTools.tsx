@@ -23,30 +23,30 @@ const CircuitBreakerDashboard: React.FC = () => {
     };
     
     const tabs = [
-        { id: 'pattern', label: 'Pattern', icon: BrainCircuit },
-        { id: 'reflex', label: 'Reflex', icon: Zap },
-        { id: 'tick-tock', label: 'Tick Tock', icon: Clock },
+        { id: 'pattern', label: 'NEURAL PATTERN', icon: BrainCircuit },
+        { id: 'reflex', label: 'REFLEX CALIBRATION', icon: Zap },
+        { id: 'tick-tock', label: 'TEMPORAL RECALL', icon: Clock },
     ];
 
     return (
-        <div className="space-y-8">
-            <div className="border-b border-brand-border flex">
+        <div className="space-y-10">
+            <div className="glass-panel p-1 rounded-2xl flex border border-brand-border/20 shadow-[0_0_30px_rgba(0,0,0,0.3)] overflow-hidden">
                  {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as ActiveTab)}
-                        className={`flex-1 text-center py-3 px-2 font-semibold transition-colors flex items-center justify-center gap-2 ${
+                        className={`flex-1 text-center py-4 px-2 font-black transition-all duration-300 flex items-center justify-center gap-3 text-xs uppercase tracking-widest font-header italic ${
                             activeTab === tab.id 
-                            ? 'text-brand-primary border-b-2 border-brand-primary' 
-                            : 'text-brand-text-muted hover:text-brand-text'
+                            ? 'bg-brand-primary text-brand-text shadow-[inset_0_0_20px_rgba(255,255,255,0.1)]' 
+                            : 'text-brand-text-muted hover:text-brand-text hover:bg-white/5'
                         }`}
                     >
-                       <tab.icon size={16} />
+                       <tab.icon size={18} className={activeTab === tab.id ? 'animate-pulse' : ''} />
                        {tab.label}
                     </button>
                  ))}
             </div>
-            <div>
+            <div className="animate-fade-in">
                 {renderTabContent()}
             </div>
         </div>

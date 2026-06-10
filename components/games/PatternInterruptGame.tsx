@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { audioService } from '../../services/audioService';
 
 type GridCellState = 'default' | 'highlight' | 'success';
 
@@ -8,6 +9,12 @@ const PatternInterruptGame: React.FC<{ onComplete: () => void }> = ({ onComplete
     const [isShowingSequence, setIsShowingSequence] = useState(true);
     const [message, setMessage] = useState('Watch carefully...');
     const [gridState, setGridState] = useState<GridCellState[]>(Array(9).fill('default'));
+    const [isGlitching, setIsGlitching] = useState(false);
+
+    const triggerGlitch = useCallback(() => {
+        setIsGlitching(true);
+        setTimeout(() => setIsGlitching(false), 200);
+    }, []);
 
     const generateAndShowSequence = useCallback(() => {
         const newSequence: number[] = [];
@@ -65,14 +72,18 @@ const PatternInterruptGame: React.FC<{ onComplete: () => void }> = ({ onComplete
                 setGridState(Array(9).fill('success'));
                 setTimeout(onComplete, 1200);
             }
+        } else {
+            // Trigger glitch on wrong click
+            triggerGlitch();
+            audioService.playErrorSound();
         }
     };
     
     const getTileClass = (index: number) => {
-        if (gridState[index] === 'success') return 'bg-hbdi-green';
-        if (playerInput.has(index)) return 'bg-brand-secondary'; // Correctly clicked tile
-        if (gridState[index] === 'highlight') return 'bg-hbdi-yellow';
-        return 'bg-brand-bg';
+        if (gridState[index] === 'success') return 'bg-hbdi-green border-hbdi-green shadow-[0_0_15px_rgba(34,197,94,0.5)]';
+        if (playerInput.has(index)) return 'bg-brand-secondary border-brand-secondary shadow-[0_0_15px_rgba(99,102,241,0.5)]'; // Correctly clicked tile
+        if (gridState[index] === 'highlight') return 'bg-hbdi-yellow border-hbdi-yellow shadow-[0_0_15px_rgba(234,179,8,0.5)]';
+        return 'bg-white/5 border-white/10';
     };
 
     const getCursorClass = (index: number) => {
@@ -89,12 +100,12 @@ const PatternInterruptGame: React.FC<{ onComplete: () => void }> = ({ onComplete
     return (
         <div className="flex flex-col items-center">
             <p className="mb-4 text-lg font-semibold h-7">{message}</p>
-            <div className="grid grid-cols-3 gap-3 p-3 bg-black/20 rounded-lg">
+            <div className={`grid grid-cols-3 gap-4 p-4 bg-black/40 rounded-xl border border-white/5 shadow-2xl transition-all duration-300 ${isGlitching ? 'animate-glitch' : ''}`}>
                 {Array.from({ length: 9 }).map((_, i) => (
                     <div
                         key={i}
                         onClick={() => handlePlayerClick(i)}
-                        className={`w-20 h-20 rounded-md transition-colors duration-200 ${getTileClass(i)} ${getCursorClass(i)}`}
+                        className={`w-20 h-20 rounded-lg border transition-all duration-200 ${getTileClass(i)} ${getCursorClass(i)}`}
                         aria-label={`Grid cell ${i + 1}`}
                         role="button"
                     />

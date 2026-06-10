@@ -56,7 +56,7 @@ const ElementCaptureGame: React.FC = () => {
 
     useEffect(() => {
         if (gameState === 'won') {
-            const timer = setTimeout(() => setGameState('ready'), 2000);
+            const timer = setTimeout(() => setGameState('ready'), 3000);
             return () => clearTimeout(timer);
         }
 
@@ -88,7 +88,7 @@ const ElementCaptureGame: React.FC = () => {
 
                 return newGrid;
             });
-        }, 900);
+        }, 850);
 
         return () => { if (gameLoopRef.current) clearInterval(gameLoopRef.current); };
 
@@ -107,35 +107,37 @@ const ElementCaptureGame: React.FC = () => {
 
     if (gameState === 'ready') {
         return (
-            <div className="w-full mx-auto flex flex-col items-center p-8 pt-12 min-h-[450px] text-center">
-                <Zap size={64} className="text-brand-primary mb-6" />
-                <h2 className="text-3xl font-bold text-white mb-2">Test your reflexes.</h2>
-                <p className="text-brand-text-muted mb-8 max-w-md">When the target element appears in a square, click to capture it. The grid will shuffle periodically. Capture all four targets to win.</p>
-                <Button onClick={setupGame} className="text-lg py-3 px-8">Start Game</Button>
+            <div className="w-full mx-auto flex flex-col items-center p-12 min-h-[450px] text-center animate-fade-in">
+                <div className="p-6 glass-panel rounded-3xl text-brand-primary shadow-[0_0_30px_rgba(99,102,241,0.3)] mb-8 animate-bounce-subtle">
+                    <Zap size={64} />
+                </div>
+                <h2 className="text-4xl font-black text-brand-text mb-4 font-header tracking-tighter uppercase italic">Neural Reflex Test</h2>
+                <p className="text-brand-text-muted mb-10 max-w-md font-medium leading-relaxed">When the target element appears in a square, click to capture it. The grid will shuffle periodically. Capture all four targets to optimize your processing speed.</p>
+                <Button onClick={setupGame} className="text-xl py-4 px-12 font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">Initialize Protocol</Button>
             </div>
         );
     }
     
     return (
-        <div className="w-full max-w-md mx-auto flex flex-col items-center">
+        <div className="w-full max-w-md mx-auto flex flex-col items-center animate-fade-in">
              <div className="w-full flex flex-col items-center">
-                <div className="mb-6 text-center h-20">
-                    <p className="text-brand-text-muted">Target Element</p>
+                <div className="mb-10 text-center h-24">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary mb-2">Target Acquisition</p>
                     {targetElement ? (
-                        <>
-                            <h2 className="text-4xl font-bold text-brand-primary">{targetElement.symbol}</h2>
-                            <p className="font-semibold">{targetElement.name}</p>
-                        </>
-                    ) : <div className="h-12" />}
+                        <div className="animate-scale-in">
+                            <h2 className="text-5xl font-black text-brand-text font-header tracking-tighter italic drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{targetElement.symbol}</h2>
+                            <p className="font-data text-xs text-brand-text-muted uppercase tracking-widest mt-1">{targetElement.name}</p>
+                        </div>
+                    ) : <div className="h-16" />}
                 </div>
 
-                <div className="relative">
+                <div className="relative p-6 glass-panel rounded-[2.5rem] border-brand-border/30 shadow-2xl">
                     {gameState === 'won' && (
-                        <div className="absolute inset-0 bg-brand-bg/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg animate-fade-in">
-                            <h2 className="text-4xl font-bold text-green-400">SUCCESS!</h2>
+                        <div className="absolute inset-0 bg-brand-bg/80 backdrop-blur-md flex items-center justify-center z-20 rounded-[2.5rem] animate-fade-in border-2 border-hbdi-green/50 shadow-[0_0_50px_rgba(34,197,94,0.2)]">
+                            <h2 className="text-5xl font-black text-brand-text font-header tracking-tighter italic uppercase animate-pulse">Neural Sync Complete</h2>
                         </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4 p-3 bg-black/20 rounded-lg">
+                    <div className="grid grid-cols-2 gap-6">
                         {Array.from({ length: 4 }).map((_, i) => {
                             const isCaptured = !!captured[i];
                             const element = gridElements[i];
@@ -145,21 +147,33 @@ const ElementCaptureGame: React.FC = () => {
                                     onClick={() => handleSquareClick(i)}
                                     disabled={isCaptured || gameState !== 'playing'}
                                     aria-label={`Grid cell ${i + 1}`}
-                                    className={`w-28 h-28 md:w-32 md:h-32 rounded-lg flex flex-col items-center justify-center transition-all duration-200
-                                    ${isCaptured ? `bg-brand-primary text-white shadow-lg scale-105 cursor-default ${gameState === 'won' ? 'animate-pulse-green' : ''}`
-                                                : `bg-brand-surface border border-brand-border ${ gameState === 'playing' ? 'hover:border-brand-primary hover:scale-105' : ''}`}`
+                                    className={`w-32 h-32 md:w-36 md:h-36 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 relative overflow-hidden group
+                                    ${isCaptured 
+                                        ? `bg-brand-primary/20 border-2 border-brand-primary text-brand-text shadow-[0_0_30px_rgba(99,102,241,0.4)] scale-105 cursor-default`
+                                        : `bg-black/40 border-2 border-white/5 ${ gameState === 'playing' ? 'hover:border-brand-primary/50 hover:bg-black/60 hover:scale-105' : ''}`}`
                                     }
                                 >
                                     {element && (
-                                        <>
-                                            <span className="text-4xl font-bold">{element.symbol}</span>
-                                            <span className="text-xs text-brand-text-muted">{element.name}</span>
-                                        </>
+                                        <div className="animate-scale-in flex flex-col items-center">
+                                            <span className="text-4xl font-black text-brand-text font-header tracking-tighter italic">{element.symbol}</span>
+                                            <span className="text-[10px] font-data text-brand-text-muted uppercase tracking-widest mt-1">{element.name}</span>
+                                        </div>
+                                    )}
+                                    {isCaptured && (
+                                        <div className="absolute top-2 right-2">
+                                            <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_10px_rgba(99,102,241,1)]" />
+                                        </div>
                                     )}
                                 </button>
                             )
                         })}
                     </div>
+                </div>
+                
+                <div className="mt-10 flex gap-2">
+                    {captured.map((c, i) => (
+                        <div key={i} className={`w-3 h-3 rounded-full transition-all duration-500 ${c ? 'bg-brand-primary shadow-[0_0_10px_rgba(99,102,241,0.8)] scale-125' : 'bg-white/10'}`} />
+                    ))}
                 </div>
              </div>
         </div>

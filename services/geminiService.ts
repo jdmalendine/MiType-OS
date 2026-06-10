@@ -1,11 +1,11 @@
-import { GoogleGenAI, GenerateContentResponse, Type, Modality } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { UserProfile, ChatMessage, Archetype, Egotend, Highertend } from '../types';
+import { MBTI_ARCHETYPE_MAP } from './mbtiArchetypeService';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = () => {
+    // Initializing Gemini client strictly using process.env.GEMINI_API_KEY as per the platform guidelines
+    return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+};
 
 const MTypeSystemInstruction = `You are "Mi", an AI assistant integrated into the MiType+ Cognitive OS. Your purpose is to help users understand themselves through the MiType+ framework. You MUST adhere to the following rules:
 1.  **Analyze Data:** When given assessment data, analyze it strictly within the MiType+ framework provided in user prompts.
@@ -15,6 +15,7 @@ const MTypeSystemInstruction = `You are "Mi", an AI assistant integrated into th
 5.  **Output Format:** Always respond in the requested JSON format when asked. For chat, respond in clear, concise markdown.`;
 
 export async function analyzeMTra(answers: { [key: number]: number }): Promise<any> {
+    const ai = getAI();
     const prompt = `Analyze the following 20 MTra (MiType Threshold Reaction) assessment answers to determine the user's top 3 CT (Change Threshold) Suppressors and their overall Change Threshold level. The answers are on a 1-5 scale (1=Strongly Disagree, 5=Strongly Agree).
 
     Answers: ${JSON.stringify(answers, null, 2)}
@@ -32,7 +33,7 @@ export async function analyzeMTra(answers: { [key: number]: number }): Promise<a
     Return a JSON object with this exact structure: { "changeThreshold": "High" | "Moderate" | "Low", "ctSuppressors": ["Suppressor 1", "Suppressor 2", "Suppressor 3"] }`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
             systemInstruction: MTypeSystemInstruction,
@@ -54,6 +55,7 @@ export async function analyzeMTra(answers: { [key: number]: number }): Promise<a
 }
 
 export async function analyzeHbdiForSummary(answers: { [key: number]: string }): Promise<string> {
+    const ai = getAI();
     const prompt = `Based on the following HBDI assessment answers, provide a brief (2-3 sentences) summary of the user's dominant cognitive preference.
     (A=Blue/Analytical, B=Green/Practical, C=Red/Relational, D=Yellow/Conceptual).
     Answers: ${JSON.stringify(answers, null, 2)}
@@ -61,23 +63,32 @@ export async function analyzeHbdiForSummary(answers: { [key: number]: string }):
     Example summary: "Your answers suggest a strong preference for the conceptual and relational quadrants, indicating you are an imaginative and people-oriented thinker."`;
     
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt,
         config: { systemInstruction: MTypeSystemInstruction }
     });
     
-    return response.text;
+    return response.text || "Analysis complete.";
 }
 
 export async function analyzeMbtiForSummary(answers: { [key: number]: string }): Promise<{ mbtiType: string, summary: string }> {
-     const prompt = `Analyze the following MBTI assessment answers to determine the user's 4-letter MBTI type and provide a brief (2-3 sentences) summary of this type.
+    const ai = getAI();
+    const prompt = `Analyze the following MBTI assessment answers to determine the user's 4-letter MBTI type and provide a brief (2-3 sentences) summary of this type.
     
-    Answers: ${JSON.stringify(answers, null, 2)}
+    Answers (Indices 0-19, 'a' or 'b'): ${JSON.stringify(answers, null, 2)}
+    
+    **Scoring Key:**
+    - EI (0-4): a=E, b=I
+    - SN (5-9): a=S, b=N
+    - TF (10-14): a=T, b=F
+    - JP (15-19): a=J, b=P
+    
+    Count the answers for each letter in each dimension. The one with the highest count (3 or more out of 5) wins that letter.
     
     Return a JSON object with this exact structure: { "mbtiType": "XXXX", "summary": "..." }`;
     
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-3-pro-preview',
         contents: prompt,
         config: {
             systemInstruction: MTypeSystemInstruction,
@@ -100,38 +111,20 @@ export async function analyzeMbtiForSummary(answers: { [key: number]: string }):
 export async function generateFullProfileFromAssessments(
     mtraResults: { changeThreshold: string; ctSuppressors: string[] },
     hbdiAnswers: { [key: number]: string },
-    mbtiAnswers: { [key: number]: string }
+    mbtiAnswers: { [key: number]: string },
+    detectedMbti: string
 ): Promise<{ baseArchetype: Archetype, egotend: Egotend, highertend: Highertend }> {
+    const ai = getAI();
+    const archetypeRef = MBTI_ARCHETYPE_MAP[detectedMbti] || MBTI_ARCHETYPE_MAP['ISTJ'];
 
-    const twentyFourArchetypes = [
-        "Imaginative Explorer",
-        "Transformational Leader",
-        "Innovative Designer",
-        "Creative Problem Solver",
-        "Visionary Conceptualiser",
-        "Passionate Advocate",
-        "Dynamic Motivator",
-        "Intuitive Strategist",
-        "Adaptive Analyst",
-        "Logical Innovator",
-        "Holistic Integrator",
-        "Relationship Builder",
-        "Personalised Coach",
-        "Expressive Communicator",
-        "Methodical Producer",
-        "Structured Communicator",
-        "Empathetic Supporter",
-        "Reliable Executor",
-        "Harmonious Facilitator",
-        "Systematic Implementer",
-        "Strategic Planner",
-        "Efficient Analyst",
-        "Harmonious Analyst",
-        "Detailed Organiser"
-    ];
-
-    const prompt = `Synthesize a full MiType+ profile from the user's MTra, HBDI, and MBTI assessment results.
-
+    const prompt = `Synthesize a full MiType+ profile from the user's MTra, HBDI, and MBTI assessment results. 
+    
+    CRITICAL: YOU MUST USE THE MBTI TYPE "${detectedMbti}" FOR THIS PROFILE.
+    REFERENCE: The base archetype for "${detectedMbti}" is "${archetypeRef.name}".
+    CORE DRIVE: "${archetypeRef.coreDrive}"
+    
+    Use the reference name and core drive as the foundation, but adding technical depth based on the specific assessment data below.
+    
     **1. MTra Results (Change Threshold):**
     ${JSON.stringify(mtraResults, null, 2)}
 
@@ -139,37 +132,34 @@ export async function generateFullProfileFromAssessments(
     ${JSON.stringify(hbdiAnswers, null, 2)}
     (A=Blue/Analytical, B=Green/Practical, C=Red/Relational, D=Yellow/Conceptual)
 
-    **3. MBTI Answers (Processing Style):**
-    ${JSON.stringify(mbtiAnswers, null, 2)}
-    (Analyze tendencies towards Introversion/Extraversion, Sensing/Intuition, Thinking/Feeling, Judging/Perceiving)
+    **3. Detected MBTI Type:**
+    ${detectedMbti}
 
     **Task:**
-    
-    **First, determine the Base Archetype.**
-    - Analyze the HBDI and MBTI answers to find the dominant cognitive and processing styles.
-    - From the list of 24 Archetypes provided below, select the ONE that best fits the user's profile based on their assessment results. You MUST use one of the names from this list for the "name" field.
-    - **List of 24 Archetypes to choose from:** ${JSON.stringify(twentyFourArchetypes)}
-    - Define its "coreDrive".
-    - Specify the resulting "HBDI" (e.g., "A/D Dominant") and "MBTI" (e.g., "INTJ") types.
-    - Set the Archetype's base "CTS" to the user's "changeThreshold" from MTra.
-    
-    **Second, define the Egotend and Highertend.**
-    - The **Egotend** is the negative, stress-state expression of the Base Archetype, triggered by their "ctSuppressors". Name it accordingly (e.g., "The Rigid Micromanager") and list its key "challenges".
-    - The **Highertend** is the positive, growth-state expression of the Base Archetype. Name it accordingly (e.g., "The Empowering Architect") and define its "pathToGrowth".
+    1. Define the Base Archetype using "${archetypeRef.name}" as the name.
+    2. Define its "coreDrive" using "${archetypeRef.coreDrive}" as the base.
+    3. SET THE "MBTI" PROPERTY TO EXACTLY "${detectedMbti}".
+    4. Define a brief string for the "HBDI" label summarizing the dominant quadrants.
+    5. SET THE "CTS" PROPERTY TO "${mtraResults.changeThreshold}".
+    6. Define an "Egotend" (stress mode) with:
+       - "name" (something descriptive like 'The Reactive ${archetypeRef.name}')
+       - "challenges" (based on suppressors: ${mtraResults.ctSuppressors.join(', ')})
+       - "warningSigns" (4-5 short, relatable bullet points)
+       - "commonTriggers" (3-4 simple bullet points)
+    7. Define a "Highertend" (flow state) with:
+       - "name" (something inspiring like 'The Integrated ${archetypeRef.name}')
+       - "pathToGrowth" (simple, encouraging growth steps)
+       - "strengthsInFlow" (4-5 clear, positive bullet points)
+       - "quickActivation" (3-4 super simple, actionable tips)
 
-    Return a single JSON object with this exact structure:
-    {
-        "baseArchetype": { "name": "...", "coreDrive": "...", "HBDI": "...", "MBTI": "...", "CTS": "High" | "Moderate" | "Low" },
-        "egotend": { "name": "...", "challenges": ["...", "..."] },
-        "highertend": { "name": "...", "pathToGrowth": ["...", "..."] }
-    }`;
+    Return as JSON.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-3-pro-preview',
         contents: prompt,
         config: {
             systemInstruction: MTypeSystemInstruction,
-            thinkingConfig: { thinkingBudget: 32768 },
+            thinkingConfig: { thinkingBudget: 4000 },
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
@@ -182,24 +172,25 @@ export async function generateFullProfileFromAssessments(
                             HBDI: { type: Type.STRING },
                             MBTI: { type: Type.STRING },
                             CTS: { type: Type.STRING }
-                        },
-                        required: ["name", "coreDrive", "HBDI", "MBTI", "CTS"]
+                        }
                     },
                     egotend: {
                         type: Type.OBJECT,
                         properties: {
                             name: { type: Type.STRING },
-                            challenges: { type: Type.ARRAY, items: { type: Type.STRING } }
-                        },
-                        required: ["name", "challenges"]
+                            challenges: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            warningSigns: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            commonTriggers: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        }
                     },
                     highertend: {
                         type: Type.OBJECT,
                         properties: {
                             name: { type: Type.STRING },
-                            pathToGrowth: { type: Type.ARRAY, items: { type: Type.STRING } }
-                        },
-                        required: ["name", "pathToGrowth"]
+                            pathToGrowth: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            strengthsInFlow: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            quickActivation: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        }
                     }
                 }
             },
@@ -209,100 +200,93 @@ export async function generateFullProfileFromAssessments(
     return JSON.parse(response.text);
 }
 
+export async function getArchetypeInAction(archetypeName: string): Promise<string> {
+    const ai = getAI();
+    const prompt = `Provide a practical, benefit-focused explanation for the MiType+ Archetype: "${archetypeName}". 
+    Write 3-4 short paragraphs showing how this archetype's core attributes and strengths directly support a user in:
+    1. Work (professional performance and productivity)
+    2. Study (learning and knowledge mastery)
+    3. Home Life (daily routines, relationships, and personal well-being)
+    
+    The tone should be casual, friendly, and relatable, avoiding overly technical jargon to appeal to a broad audience. Do not use markdown headers, just paragraphs.`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { systemInstruction: MTypeSystemInstruction }
+    });
+
+    return response.text || "Content generation in progress...";
+}
 
 export async function getChatResponse(history: ChatMessage[], profile: UserProfile): Promise<string> {
+    const ai = getAI();
     const userProfileContext = `This user's current MiType+ profile is:
     - Base Archetype: ${profile.baseArchetype?.name}
-    - Egotend State: ${profile.egotend?.name} (Challenges: ${profile.egotend?.challenges.join(', ')})
-    - Highertend State: ${profile.highertend?.name} (Growth Path: ${profile.highertend?.pathToGrowth.join(', ')})
-    - Current Suppressors: ${profile.ctSuppressors?.join(', ')}
-    
-    Use this context to provide personalized, helpful answers.`;
-
-    const chat = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        history: history,
-        config: {
-            systemInstruction: `${MTypeSystemInstruction}\n\n${userProfileContext}`,
-        }
-    });
-
-    const lastMessage = history[history.length - 1];
-    
-    const result = await chat.sendMessageStream({ parts: lastMessage.parts });
-    let text = '';
-    for await (const chunk of result) {
-      text += chunk.text;
-    }
-    
-    return text;
-}
-
-export async function getReframingExercise(suppressor: string): Promise<string> {
-    const prompt = `Provide a quick, actionable "Circuit Breaker" reframing exercise for the following CT Suppressor: "${suppressor}".
-    The exercise should be 2-3 sentences long. Use a calm, direct, and supportive tone. This needs to be a very fast response.`;
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-lite',
-        contents: prompt,
-    });
-    
-    return response.text;
-}
-
-export async function interpretFrictionMarkers(communicationData: string, auditResults: { vagueCount: number; negativeCount: number; avoidanceCount: number; valenceScore: number; }): Promise<string> {
-    const prompt = `A user has run a TFM (Total Friction Marker) audit on a piece of communication text. The audit found the following:
-- Cognitive Friction Markers (Vague Language): ${auditResults.vagueCount}
-- Emotional Friction Markers (High Negativity): ${auditResults.negativeCount}
-- Systemic Friction Markers (Responsibility Avoidance): ${auditResults.avoidanceCount}
-- Average Valence Score: ${auditResults.valenceScore.toFixed(2)} (A score above 0 is generally positive, below 0 is negative. The range is roughly -3 to +3).
-
-The original text was:
-"""
-${communicationData}
-"""
-
-Based on these results and the text provided, provide a brief, insightful interpretation. Explain what these markers AND the valence score might indicate about the team's communication dynamics, a potential bottleneck, or underlying issues. A negative valence score with high negativity markers indicates significant emotional friction. A positive score with high vague markers might suggest polite but ineffective communication. Frame your interpretation as helpful advice to improve clarity, morale, and accountability. Structure your response in markdown. Start with a summary, then use bullet points for specific observations.`;
+    - Egotend State: ${profile.egotend?.name}
+    - Highertend State: ${profile.highertend?.name}
+    - Current Suppressors: ${profile.ctSuppressors?.join(', ')}`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
+        contents: { parts: history.flatMap(h => h.parts).concat([{ text: "User context: " + userProfileContext }]) },
+        config: { systemInstruction: MTypeSystemInstruction }
+    });
+    
+    return response.text || "I'm listening.";
+}
+
+export async function interpretFrictionMarkers(
+    communicationData: string, 
+    auditResults: { vagueCount: number; negativeCount: number; avoidanceCount: number; valenceScore: number; },
+    profile: UserProfile
+): Promise<string> {
+    const ai = getAI();
+    const userContext = `User Profile:
+    - Base Archetype: ${profile.baseArchetype?.name}
+    - Egotend: ${profile.egotend?.name}
+    - Highertend: ${profile.highertend?.name}
+    - Change Threshold: ${profile.changeThreshold}`;
+
+    const prompt = `As "Mi", interpret the following TFM (Team Friction Marker) Audit results for the user.
+    
+    **Audit Results:**
+    - Vague Language (Cognitive Friction): ${auditResults.vagueCount}
+    - Negativity (Emotional Friction): ${auditResults.negativeCount}
+    - Avoidance (Systemic Friction): ${auditResults.avoidanceCount}
+    - Valence Score (Sentiment): ${auditResults.valenceScore.toFixed(2)}
+    
+    **Communication Sample:**
+    "${communicationData}"
+    
+    **User Context:**
+    ${userContext}
+    
+    **Instructions:**
+    1. Provide a professional, clinical, yet insightful analysis of the friction detected.
+    2. Relate the findings to the user's MiType+ profile (Archetype, Egotend, Highertend) where relevant.
+    3. DO NOT output any JSON or code blocks.
+    4. DO NOT hallucinate external sci-fi narratives, characters (like Sam), or organizations (like L'Arc). Stick strictly to the MiType+ framework and the provided data.
+    5. Use clear Markdown formatting with bold text for emphasis.
+    6. Start with a direct greeting as Mi.`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
         contents: prompt,
-        config: {
-            systemInstruction: MTypeSystemInstruction,
-        }
+        config: { systemInstruction: MTypeSystemInstruction }
     });
 
-    return response.text;
+    return response.text || "No friction detected.";
 }
 
 export async function getArchetypeDetails(archetypeName: string): Promise<Pick<Archetype, 'coreDrive' | 'HBDI' | 'MBTI'>> {
-    const prompt = `For the MiType+ Archetype named "${archetypeName}", provide its defining characteristics.
-    - **coreDrive**: A concise sentence describing its primary motivation.
-    - **HBDI**: The typical Herrmann Brain Dominance Instrument preference (e.g., "A/D Dominant", "C/B Secondary").
-    - **MBTI**: The most common Myers-Briggs Type Indicator code (e.g., "ENTJ", "ISFP").
-
-    Return a single JSON object with this exact structure:
-    {
-      "coreDrive": "...",
-      "HBDI": "...",
-      "MBTI": "..."
-    }`;
-
+    const ai = getAI();
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
-        contents: prompt,
+        model: 'gemini-3-flash-preview',
+        contents: `Details for MiType+ Archetype: "${archetypeName}". Return coreDrive, HBDI, MBTI as JSON.`,
         config: {
             systemInstruction: MTypeSystemInstruction,
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    coreDrive: { type: Type.STRING },
-                    HBDI: { type: Type.STRING },
-                    MBTI: { type: Type.STRING },
-                },
-                required: ["coreDrive", "HBDI", "MBTI"]
-            },
+            responseMimeType: "application/json"
         }
     });
 

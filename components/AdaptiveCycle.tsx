@@ -4,15 +4,25 @@ import { UserProfile, LogEntry, IntensityLog } from '../types';
 import Card from './Card';
 import Button from './Button';
 import Modal from './Modal';
-import { Activity, Zap, TrendingUp, TrendingDown, Info, BarChart } from 'lucide-react';
+import { Activity, Zap, TrendingUp, TrendingDown, Info, BarChart, ShieldAlert } from 'lucide-react';
 
 const Slider: React.FC<{ label: string; value: number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }> = ({ label, value, onChange }) => (
-    <div>
-        <label className="flex justify-between items-center text-sm font-medium mb-1">
+    <div className="group">
+        <label className="flex justify-between items-center text-xs font-black uppercase tracking-widest mb-3 group-hover:text-brand-primary transition-colors">
             <span>{label}</span>
-            <span className="font-bold text-brand-primary">{value}</span>
+            <span className="font-data text-brand-primary text-lg">{value}</span>
         </label>
-        <input type="range" min="1" max="5" value={value} onChange={onChange} className="w-full h-2 bg-brand-bg rounded-lg appearance-none cursor-pointer" />
+        <div className="relative flex items-center">
+            <input 
+                type="range" 
+                min="1" 
+                max="5" 
+                value={value} 
+                onChange={onChange} 
+                className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-brand-primary hover:accent-brand-primary/80 transition-all" 
+            />
+            <div className="absolute -z-10 w-full h-1.5 bg-brand-primary/10 rounded-full blur-[2px]" />
+        </div>
     </div>
 );
 
@@ -127,86 +137,131 @@ const AdaptiveCycle: React.FC<{ userProfile: UserProfile, onLogEvent: (log: LogE
     const intensityLogs = userProfile.log.filter((l): l is IntensityLog => l.type === 'intensity');
 
     return (
-        <div className="space-y-8">
-             <Card>
-                <h1 className="text-2xl font-bold mb-2 flex items-center gap-2"><Activity /> Adaptive Cycle Module</h1>
-                <p className="text-brand-text-muted">Log your cognitive state to engage preventative (ARC) or emergency (ERP) protocols.</p>
+        <div className="space-y-10">
+             <div className="flex items-center gap-4 text-3xl font-black font-header tracking-tighter italic uppercase">
+                <div className="p-3 glass-panel rounded-xl text-brand-primary shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                    <Activity size={32} />
+                </div>
+                <h1>ADAPTIVE CYCLE MODULE</h1>
+            </div>
+
+            <Card>
+                <p className="text-brand-text-muted leading-relaxed font-medium max-w-3xl">Log your cognitive state to engage preventative (ARC) or emergency (ERP) protocols. Real-time neural monitoring for peak performance.</p>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card>
-                    <h2 className="text-xl font-bold mb-4">{arcState === 'pre' ? 'Step 1: Log Pre-Recharge State' : 'Step 2: Log Post-Recharge State'}</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <Card className="relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4">
+                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${arcState === 'pre' ? 'border-hbdi-red/50 text-hbdi-red' : 'border-hbdi-green/50 text-hbdi-green'} animate-pulse`}>
+                            {arcState === 'pre' ? 'Pre-Calibration' : 'Post-Calibration'}
+                        </div>
+                    </div>
+
+                    <h2 className="text-2xl font-black mb-8 font-header tracking-tight uppercase italic">{arcState === 'pre' ? 'Log Pre-Recharge State' : 'Log Post-Recharge State'}</h2>
                     
                     {arcState === 'pre' ? (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="font-semibold flex items-center gap-2"><TrendingDown className="text-red-500" /> Egotend Intensity Score (EIS)</h3>
-                                <p className="text-xs text-brand-text-muted mb-2">Internal pressure and cognitive stagnation.</p>
-                                <div className="space-y-4 pl-4 border-l-2 border-brand-border">
+                        <div className="space-y-10">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <TrendingDown className="text-hbdi-red" size={20} />
+                                    <h3 className="text-sm font-black uppercase tracking-widest">Egotend Intensity Score (EIS)</h3>
+                                </div>
+                                <div className="space-y-8 pl-6 border-l border-brand-border/20">
                                     <Slider label="Analysis Paralysis" value={eis.ap} onChange={(e) => setEis(p => ({...p, ap: +e.target.value}))} />
                                     <Slider label="Internal Intensity" value={eis.ii} onChange={(e) => setEis(p => ({...p, ii: +e.target.value}))} />
                                     <Slider label="Pedantic Urge" value={eis.pu} onChange={(e) => setEis(p => ({...p, pu: +e.target.value}))} />
                                 </div>
                             </div>
-                            <div>
-                                <h3 className="font-semibold flex items-center gap-2"><Zap className="text-yellow-500" /> Environmental Load Score (ELS)</h3>
-                                <p className="text-xs text-brand-text-muted mb-2">External social or sensory complexity.</p>
-                                <div className="pl-4 border-l-2 border-brand-border">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Zap className="text-hbdi-yellow" size={20} />
+                                    <h3 className="text-sm font-black uppercase tracking-widest">Environmental Load Score (ELS)</h3>
+                                </div>
+                                <div className="space-y-8 pl-6 border-l border-brand-border/20">
                                     <Slider label="External Load" value={els} onChange={(e) => setEls(+e.target.value)} />
                                 </div>
                             </div>
-                            <Button onClick={handleLogPreArc} className="w-full">Log & Start Recharge</Button>
+                            <Button onClick={handleLogPreArc} className="w-full py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">Log & Start Recharge</Button>
                         </div>
                     ) : (
-                        <div className="space-y-6">
-                            <div className="bg-brand-bg p-4 rounded-md border border-brand-border">
-                                <h3 className="font-semibold text-center">Recharge Cycle Active</h3>
-                                <p className="text-brand-text-muted text-center text-sm">Take a moment. Step away, breathe, or use a technique from the MiShift Gym. When you're ready, log your state below.</p>
+                        <div className="space-y-10">
+                            <div className="glass-panel p-6 rounded-2xl border border-brand-primary/20 shadow-lg text-center">
+                                <h3 className="text-lg font-black font-header tracking-tight uppercase italic text-brand-primary mb-2">Recharge Cycle Active</h3>
+                                <p className="text-brand-text-muted text-sm font-medium leading-relaxed">Take a moment. Step away, breathe, or use a technique from the MiShift Gym. When you're ready, log your state below.</p>
                             </div>
-                            <div>
-                                <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="text-green-500" /> Resilience State Score (RSS)</h3>
-                                <p className="text-xs text-brand-text-muted mb-2">Post-recharge readiness and cognitive quality.</p>
-                                 <div className="space-y-4 pl-4 border-l-2 border-brand-border">
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <TrendingUp className="text-hbdi-green" size={20} />
+                                    <h3 className="text-sm font-black uppercase tracking-widest">Resilience State Score (RSS)</h3>
+                                </div>
+                                 <div className="space-y-8 pl-6 border-l border-brand-border/20">
                                     <Slider label="Cognitive Clarity" value={rss.cc} onChange={(e) => setRss(p => ({...p, cc: +e.target.value}))} />
                                     <Slider label="Productive Readiness" value={rss.pr} onChange={(e) => setRss(p => ({...p, pr: +e.target.value}))} />
                                 </div>
                             </div>
-                            <Button onClick={handleCompleteArc} className="w-full">Complete ARC & Log</Button>
-                            <Button onClick={resetForm} variant="secondary" className="w-full">Cancel</Button>
+                            <div className="space-y-4">
+                                <Button onClick={handleCompleteArc} className="w-full py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">Complete ARC & Log</Button>
+                                <Button onClick={resetForm} variant="secondary" className="w-full py-3 text-xs font-black tracking-widest uppercase">Cancel Calibration</Button>
+                            </div>
                         </div>
                     )}
                 </Card>
 
-                <Card>
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><BarChart /> Intensity Log History</h2>
-                    <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                <Card className="flex flex-col">
+                    <h2 className="text-2xl font-black mb-8 font-header tracking-tight uppercase italic flex items-center gap-3">
+                        <BarChart className="text-brand-primary" /> Intensity Log History
+                    </h2>
+                    <div className="flex-1 overflow-y-auto space-y-4 pr-4 custom-scrollbar">
                         {intensityLogs.length > 0 ? intensityLogs.map(log => (
-                            <div key={log.timestamp} className="bg-brand-bg p-3 rounded-md text-sm">
-                                <p className="font-semibold">Logged: {new Date(log.timestamp).toLocaleString()}</p>
-                                <p className="text-brand-text-muted">Efficacy: <span className="font-bold text-brand-primary">{log.arcEfficacyScore}</span></p>
-                                {log.hctMaximizerTriggered && <p className="text-yellow-400 text-xs flex items-center gap-1"><Info size={14} /> HCT Maximizer Triggered</p>}
+                            <div key={log.timestamp} className="glass-panel p-5 rounded-2xl border border-white/5 shadow-md group hover:border-brand-primary/30 transition-all duration-300">
+                                <div className="flex justify-between items-start mb-3">
+                                    <p className="font-data text-[10px] text-brand-text-muted uppercase tracking-widest">{new Date(log.timestamp).toLocaleString()}</p>
+                                    <div className="px-2 py-0.5 rounded bg-brand-primary/10 text-brand-primary text-[10px] font-black uppercase tracking-widest">ARC Cycle</div>
+                                </div>
+                                <div className="flex items-end justify-between">
+                                    <div>
+                                        <p className="text-xs font-black uppercase tracking-widest text-brand-text-muted mb-1">Efficacy Score</p>
+                                        <p className="text-3xl font-black font-header tracking-tighter text-brand-text drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{log.arcEfficacyScore}</p>
+                                    </div>
+                                    {log.hctMaximizerTriggered && (
+                                        <div className="flex items-center gap-2 text-hbdi-yellow text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                            <Info size={14} /> HCT Maximizer
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )) : (
-                            <p className="text-brand-text-muted text-center py-8">No intensity cycles logged yet.</p>
+                            <div className="flex flex-col items-center justify-center h-full py-12 opacity-30">
+                                <BarChart size={48} className="mb-4" />
+                                <p className="text-brand-text-muted font-black uppercase tracking-widest text-xs">No intensity cycles logged yet.</p>
+                            </div>
                         )}
                     </div>
                 </Card>
             </div>
 
 
-            <Modal isOpen={erpModalOpen} onClose={() => setErpModalOpen(false)} title="Egotend Reversal Protocol Activated!">
-                <div className="space-y-4">
-                    <p className="text-brand-text-muted">High Egotend intensity detected. Execute the following command immediately:</p>
-                    <div className="bg-brand-bg p-4 rounded-md border border-brand-primary">
-                        <p className="text-lg font-bold text-center text-brand-text">{erpCommand}</p>
+            <Modal isOpen={erpModalOpen} onClose={() => setErpModalOpen(false)} title="EGOTEND REVERSAL PROTOCOL ACTIVATED!">
+                <div className="space-y-8 p-4">
+                    <div className="flex items-center gap-4 text-hbdi-red">
+                        <ShieldAlert size={32} className="animate-pulse" />
+                        <p className="text-sm font-black uppercase tracking-widest leading-relaxed">High Egotend intensity detected. Execute the following command immediately to prevent system gridlock.</p>
                     </div>
+                    
+                    <div className="glass-panel p-8 rounded-3xl border-2 border-hbdi-red shadow-[0_0_40px_rgba(239,68,68,0.2)] text-center">
+                        <p className="text-2xl font-black font-header tracking-tight text-brand-text leading-tight italic">{erpCommand}</p>
+                    </div>
+
                     {erpAdvancedInfo && (
-                        <div className="bg-brand-bg p-4 rounded-md border border-yellow-500">
-                             <h4 className="font-semibold text-yellow-500">Advanced Protocol Active</h4>
-                            <p className="text-sm text-brand-text-muted mt-2">{erpAdvancedInfo}</p>
+                        <div className="glass-panel p-6 rounded-2xl border border-hbdi-yellow/30 bg-hbdi-yellow/5">
+                             <h4 className="text-xs font-black text-hbdi-yellow uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <Info size={14} /> Advanced Protocol Insight
+                             </h4>
+                            <p className="text-sm text-brand-text-muted font-medium leading-relaxed">{erpAdvancedInfo}</p>
                         </div>
                     )}
-                    <Button onClick={() => { setErpModalOpen(false); resetForm(); }} className="w-full">Acknowledge & Reset</Button>
+                    
+                    <Button onClick={() => { setErpModalOpen(false); resetForm(); }} className="w-full py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_30px_rgba(239,68,68,0.3)]">Acknowledge & Reset System</Button>
                 </div>
             </Modal>
         </div>

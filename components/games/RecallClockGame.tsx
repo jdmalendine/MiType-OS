@@ -139,7 +139,7 @@ const TickTockGame: React.FC = () => {
                 style={{ width: CLOCK_SIZE, height: CLOCK_SIZE }}
             >
                 <div className="absolute inset-0 flex items-center justify-center text-center p-4">
-                    {gameState === 'memorize' && <span className="text-6xl font-bold text-white tracking-widest">{timeString}</span>}
+                    {gameState === 'memorize' && <span className="text-6xl font-bold text-brand-text tracking-widest">{timeString}</span>}
                     {gameState === 'recall' && (
                         <div>
                             <p className="text-xl font-semibold text-brand-text-muted">What was the time?</p>
@@ -207,7 +207,7 @@ const TickTockGame: React.FC = () => {
             {gameState === 'ready' ? (
                  <div className="w-full mx-auto flex flex-col items-center p-8 pt-12 min-h-[450px] text-center">
                     <Clock size={64} className="text-brand-primary mb-6" />
-                    <h2 className="text-3xl font-bold text-white mb-2">Test your memory.</h2>
+                    <h2 className="text-3xl font-bold text-brand-text mb-2">Test your memory.</h2>
                     <p className="text-brand-text-muted mb-8 max-w-md">Memorize the time, then recall the hour and minute after the clock transforms. The colored dots are your anchors.</p>
                     <Button onClick={handleStartClick} className="text-lg py-3 px-8">Start Recall</Button>
                 </div>

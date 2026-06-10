@@ -7,7 +7,6 @@ const MIN_SHIMMER_SPEED = 0.005;
 const MAX_SHIMMER_SPEED = 0.02;
 
 const baseColor = '#374151'; // restored brand-border
-// FIX: Use only the brand's core colors, removing purple and pink accents.
 const colors = ['#3B82F6', '#22C55E', '#EF4444', '#EAB308'];
 const colorPalette = [baseColor, ...colors];
 

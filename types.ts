@@ -10,11 +10,15 @@ export interface Archetype {
 export interface Egotend {
   name: string;
   challenges: string[];
+  warningSigns: string[];
+  commonTriggers: string[];
 }
 
 export interface Highertend {
   name: string;
   pathToGrowth: string[];
+  strengthsInFlow: string[];
+  quickActivation: string[];
 }
 
 export interface StateLogEntry {
@@ -55,7 +59,7 @@ export interface UserProfile {
   mbtiAnswers?: Record<string, string>;
 }
 
-export type AssessmentStage = 'welcome' | 'tier' | 'basic-taster' | 'basic-results' | 'mtra' | 'mtra-results' | 'hbdi' | 'hbdi-results' | 'mbti' | 'mbti-results' | 'mios-boot' | 'complete';
+export type AssessmentStage = 'welcome' | 'tier' | 'clinician' | 'question-selector' | 'basic-taster' | 'basic-results' | 'mtra' | 'mtra-results' | 'hbdi' | 'hbdi-results' | 'mbti' | 'mbti-results' | 'mios-boot' | 'complete';
 
 export interface ChatMessage {
     role: 'user' | 'model';

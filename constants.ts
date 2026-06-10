@@ -45,24 +45,31 @@ export const hbdiQuestions = [
 ];
 
 export const mbtiQuestions = [
-    { q: "After a long week, you recharge by:", a: "Spending quiet time alone or with a close friend.", b: "Going to a social gathering with lots of people.", c: "Finishing a practical project you've been working on.", d: "Exploring a new creative hobby or idea." },
-    { q: "You are more interested in:", a: "The realities and facts of a situation.", b: "The underlying patterns and future possibilities.", c: "The logical consistency of an argument.", d: "The personal and emotional impact of a decision." },
-    { q: "When making an important decision, you rely more on:", a: "Objective principles and logical analysis.", b: "Your personal values and how it affects others.", c: "Past experience and what has worked before.", d: "A gut feeling or sense of intuition." },
-    { q: "You prefer your life to be:", a: "Planned, orderly, and decided.", b: "Spontaneous, flexible, and open to new options.", c: "Focused on achieving clear, measurable goals.", d: "A journey of discovery with unexpected turns." },
-    { q: "In conversation, you are more likely to:", a: "Listen more than you talk, thinking before you speak.", b: "Talk more than you listen, thinking as you speak.", c: "Talk about concrete details and experiences.", d: "Discuss abstract concepts and ideas." },
-    { q: "You trust:", a: "Verifiable facts and direct observation.", b: "Metaphors, symbols, and underlying meanings.", c: "Your ability to remain impartial and objective.", d: "Your empathy and understanding of human nature." },
-    { q: "You would rather be seen as:", a: "Just and fair.", b: "Compassionate and caring.", c: "Practical and down-to-earth.", d: "Innovative and imaginative." },
-    { q: "When working on a project, you:", a: "Prefer to finish one task completely before starting another.", b: "Enjoy having multiple tasks open at once, switching between them.", c: "Work steadily towards a set deadline.", d: "Find that deadlines stifle your creativity." },
-    { q: "Your attention naturally goes to:", a: "The details and specifics of what is in front of you.", b: "The big picture and how everything connects.", c: "The efficiency and effectiveness of a process.", d: "The harmony and morale of the group." },
-    { q: "When you disagree with someone, you:", a: "Look for logical flaws in their argument and point them out.", b: "Try to find common ground and preserve the relationship.", c: "Focus on the objective truth, even if it causes conflict.", d: "Avoid the confrontation if possible to keep the peace." },
-    { q: "In a new environment, you:", a: "Observe quietly from the sidelines first.", b: "Introduce yourself and engage with people immediately.", c: "Look for the most practical way to get things done.", d: "Imagine all the new possibilities the place offers." },
-    { q: "You are more of a:", a: "Realist.", b: "Visionary.", c: "Thinker.", d: "Feeler." },
-    { q: "You prefer to make decisions:", a: "As quickly as possible to have a sense of closure.", b: "After exploring all options, leaving the decision open as long as possible.", c: "Based on a clear set of rules or criteria.", d: "Based on the specific context and people involved." },
-    { q: "You are more drawn to work that requires:", a: "Attention to detail and accuracy.", b: "Strategic thinking and long-range planning.", c: "Logical problem-solving and system design.", d: "Understanding and motivating people." },
-    { q: "Your social energy is best described as:", a: "A limited battery that needs frequent recharging in solitude.", b: "A generator that powers up through interaction with others.", c: "Task-focused, used for specific purposes.", d: "Flowing and adaptable, depending on the mood." },
-    { q: "You see the world in terms of:", a: "What is tangible and real.", b: "What could be.", c: "Systems and structures.", d: "Relationships and connections." },
-    { q: "It is worse to be:", a: "Illogical.", b: "Uncaring.", c: "Impractical.", d: "Unimaginative." },
-    { q: "When starting a trip, you prefer to:", a: "Have a detailed plan and schedule.", b: "Have a loose destination and figure it out as you go.", c: "Pack efficiently with everything you'll need.", d: "Pack light, ready for any adventure." },
-    { q: "You get more satisfaction from:", a: "A job well done, meeting all the requirements.", b: "A novel solution that breaks new ground.", c: "An efficient system that works perfectly.", d: "A collaborative effort where everyone contributed." },
-    { q: "At your core, you are guided by your:", a: "Head.", b: "Heart.", c: "Senses.", d: "Imagination." },
+    // E (Extroversion) vs I (Introversion)
+    { q: "After a long day, you are more energized by:", a: "Being around people and socializing.", b: "Having some quiet time alone.", dimension: "EI" },
+    { q: "In a group setting, you usually:", a: "Are the first to speak or introduce yourself.", b: "Listen more and speak only when necessary.", dimension: "EI" },
+    { q: "Thinking about a social event, you usually:", a: "Look forward to it and feel energized.", b: "Feel like you need to 'gear up' for the social energy required.", dimension: "EI" },
+    { q: "When working on a task, you prefer to:", a: "Bounce ideas off others and work collaboratively.", b: "Work independently in a quiet space.", dimension: "EI" },
+    { q: "You would describe your social network as:", a: "Broad, with many acquaintances and friends.", b: "Deep, with a few very close, long-term friends.", dimension: "EI" },
+    
+    // S (Sensing) vs N (Intuition)
+    { q: "You are more interested in:", a: "Practical details and concrete facts.", b: "Abstract theories and future possibilities.", dimension: "SN" },
+    { q: "When learning something new, you prefer:", a: "Step-by-step instructions and clear examples.", b: "Understanding the underlying concepts and 'big picture'.", dimension: "SN" },
+    { q: "You tend to focus more on:", a: "What is actually happening right now.", b: "What could happen or what it all means.", dimension: "SN" },
+    { q: "You trust:", a: "Direct experience and verifiable data.", b: "Your hunches and creative intuition.", dimension: "SN" },
+    { q: "People often describe you as:", a: "Down-to-earth and realistic.", b: "Imaginative and visionary.", dimension: "SN" },
+    
+    // T (Thinking) vs F (Feeling)
+    { q: "When making a decision, you prioritize:", a: "Logic, consistency, and objective truth.", b: "Personal values and the impact on people.", dimension: "TF" },
+    { q: "In a disagreement, you are more concerned with:", a: "Being right and making a logical point.", b: "Maintaining harmony and understanding others.", dimension: "TF" },
+    { q: "You value most:", a: "Fairness and justice.", b: "Compassion and empathy.", dimension: "TF" },
+    { q: "Others might describe you as:", a: "Cool-headed and analytical.", b: "Warm and supportive.", dimension: "TF" },
+    { q: "It is more important for you to be:", a: "Competent and efficient.", b: "Kind and helpful.", dimension: "TF" },
+    
+    // J (Judging) vs P (Perceiving)
+    { q: "You prefer your schedule to be:", a: "Organized, planned, and decided.", b: "Flexible, open, and spontaneous.", dimension: "JP" },
+    { q: "When starting a project, you like to:", a: "Have a clear plan and deadline from the start.", b: "Keep options open and adapt as you go.", dimension: "JP" },
+    { q: "Your workspace is usually:", a: "Orderly and structured.", b: "A bit cluttered but inspiringly chaotic.", dimension: "JP" },
+    { q: "You feel most satisfied when:", a: "A task is finished and checked off your list.", b: "You discover a new, unexpected way of doing things.", dimension: "JP" },
+    { q: "When traveling, you prefer:", a: "A detailed itinerary with everything booked.", b: "A loose plan and wandering where the mood takes you.", dimension: "JP" },
 ];

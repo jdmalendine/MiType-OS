@@ -6,15 +6,19 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^1.28.0",
-    "react-dom": "^19.2.0",
-    "react": "^19.2.0",
+    "jspdf": "2.5.1",
+    "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.548.0",
+    "motion": "^12.38.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
-    "jspdf": "2.5.1"
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

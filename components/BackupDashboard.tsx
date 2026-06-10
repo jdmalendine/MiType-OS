@@ -84,37 +84,46 @@ const BackupDashboard: React.FC<{ userProfile: UserProfile; onImportProfile: (da
 
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card>
-                <h2 className="text-xl font-bold mb-2">Export Profile</h2>
-                <p className="text-brand-text-muted mb-4">Generate an encrypted code to save your profile data. Keep it safe!</p>
-                <Button onClick={handleExport}>Generate Export Code</Button>
-                {exportCode && (
-                    <div className="mt-4">
-                        <textarea
-                            readOnly
-                            aria-label="Exported Profile Code"
-                            value={exportCode}
-                            className="w-full h-32 bg-brand-bg border border-brand-border rounded-md p-2 font-mono text-xs resize-none"
-                        />
-                        <Button onClick={handleCopy} className="mt-2 w-full">Copy to Clipboard</Button>
-                    </div>
-                )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <Card className="flex flex-col">
+                <h2 className="text-2xl font-black mb-4 font-header tracking-tight uppercase italic">Neural Export</h2>
+                <p className="text-brand-text-muted mb-8 font-medium leading-relaxed">Generate a high-security encrypted string to preserve your cognitive architecture. Store this in a secure physical or digital vault.</p>
+                <div className="mt-auto">
+                    <Button onClick={handleExport} className="w-full py-4 text-lg font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">Generate Export Code</Button>
+                    {exportCode && (
+                        <div className="mt-6 animate-fade-in">
+                            <textarea
+                                readOnly
+                                aria-label="Exported Profile Code"
+                                value={exportCode}
+                                className="w-full h-40 bg-black/40 border border-brand-border/30 rounded-2xl p-4 font-data text-[10px] leading-relaxed resize-none shadow-inner focus:outline-none"
+                            />
+                            <Button onClick={handleCopy} variant="secondary" className="mt-4 w-full py-3 text-xs font-black tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(236,72,153,0.1)]">Copy to Secure Clipboard</Button>
+                        </div>
+                    )}
+                </div>
             </Card>
-            <Card>
-                <h2 className="text-xl font-bold mb-2">Import Profile</h2>
-                <p className="text-brand-text-muted mb-4">Paste your encrypted code here to restore your profile. This will overwrite current data.</p>
+            <Card className="flex flex-col">
+                <h2 className="text-2xl font-black mb-4 font-header tracking-tight uppercase italic">Neural Import</h2>
+                <p className="text-brand-text-muted mb-8 font-medium leading-relaxed">Restore your cognitive profile from an encrypted string. This operation will overwrite all local neural data with the imported baseline.</p>
                 <textarea
                     value={importCode}
                     onChange={(e) => setImportCode(e.target.value)}
-                    placeholder="Paste your code here..."
+                    placeholder="Paste encrypted neural string here..."
                     aria-label="Import Profile Code"
-                    className="w-full h-32 bg-brand-bg border border-brand-border rounded-md p-2 font-mono text-xs resize-none"
+                    className="w-full h-40 bg-black/40 border border-brand-border/30 rounded-2xl p-4 font-data text-[10px] leading-relaxed resize-none shadow-inner focus:outline-none focus:border-brand-primary/50 transition-all duration-300 mb-6"
                 />
-                <Button onClick={handleImport} className="mt-2 w-full">Import Profile</Button>
+                <div className="mt-auto">
+                    <Button onClick={handleImport} className="w-full py-4 text-lg font-black tracking-widest uppercase shadow-[0_0_20px_rgba(99,102,241,0.2)]">Restore Profile Baseline</Button>
+                </div>
             </Card>
-            {error && <p className="md:col-span-2 text-red-500 mt-4 text-center">{error}</p>}
-            {success && <p className="md:col-span-2 text-green-500 mt-4 text-center">{success}</p>}
+            {(error || success) && (
+                <div className="md:col-span-2 flex justify-center mt-4">
+                    <div className={`glass-panel px-8 py-3 rounded-full border ${error ? 'border-red-500/50 text-red-500' : 'border-hbdi-green/50 text-hbdi-green'} font-black text-xs uppercase tracking-widest animate-pulse`}>
+                        {error || success}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

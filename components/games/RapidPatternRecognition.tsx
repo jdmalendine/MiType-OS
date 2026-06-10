@@ -10,11 +10,11 @@ const TIME_DECREMENT_PER_LEVEL = 1;
 
 // 0: default, 1: blue, 2: green, 3: red, 4: yellow
 const cellColors = [
-    'bg-brand-bg',
-    'bg-hbdi-blue',
-    'bg-hbdi-green',
-    'bg-hbdi-red',
-    'bg-hbdi-yellow',
+    'bg-white/5 border border-white/10',
+    'bg-hbdi-blue border border-hbdi-blue/50 shadow-[0_0_15px_rgba(59,130,246,0.4)]',
+    'bg-hbdi-green border border-hbdi-green/50 shadow-[0_0_15px_rgba(34,197,94,0.4)]',
+    'bg-hbdi-red border border-hbdi-red/50 shadow-[0_0_15px_rgba(239,68,68,0.4)]',
+    'bg-hbdi-yellow border border-hbdi-yellow/50 shadow-[0_0_15px_rgba(234,179,8,0.4)]',
 ];
 
 const generatePattern = (level: number): number[] => {
@@ -47,6 +47,7 @@ const PatternChallengeGame: React.FC = () => {
     const [gameState, setGameState] = useState<'ready' | 'playing' | 'gameOver'>('ready');
     const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
     const [errorCellIndex, setErrorCellIndex] = useState<number | null>(null);
+    const [isGlitching, setIsGlitching] = useState(false);
     
     const timerRef = useRef<number | null>(null);
     const gameStateRef = useRef(gameState);
@@ -87,6 +88,7 @@ const PatternChallengeGame: React.FC = () => {
                     if (prev <= 1) {
                         setGameState('gameOver');
                         audioService.playErrorSound();
+                        triggerGlitch();
                         if(timerRef.current) clearInterval(timerRef.current);
                         return 0;
                     }
@@ -104,19 +106,19 @@ const PatternChallengeGame: React.FC = () => {
         };
     }, [gameState]);
     
+    const triggerGlitch = useCallback(() => {
+        setIsGlitching(true);
+        setTimeout(() => setIsGlitching(false), 200);
+    }, []);
+
     const handleCellClick = (index: number) => {
         if (gameState !== 'playing') return;
 
-        if (targetPattern[index] === 0) {
-            audioService.playErrorSound();
-            setErrorCellIndex(index);
-            setTimeout(() => setErrorCellIndex(null), 300);
-            return;
-        }
+        triggerGlitch();
 
         const newUserGrid = [...userGrid];
         const currentColor = newUserGrid[index];
-        const newColor = (currentColor % 4) + 1;
+        const newColor = (currentColor + 1) % 5;
         newUserGrid[index] = newColor;
         setUserGrid(newUserGrid);
 
@@ -132,7 +134,7 @@ const PatternChallengeGame: React.FC = () => {
         return (
             <div className="w-full mx-auto flex flex-col items-center p-8 pt-12 min-h-[450px] text-center">
                 <BrainCircuit size={64} className="text-brand-primary mb-6" />
-                <h2 className="text-3xl font-bold text-white mb-2">Ready for a challenge?</h2>
+                <h2 className="text-3xl font-bold text-brand-text mb-2">Ready for a challenge?</h2>
                 <p className="text-brand-text-muted mb-8">Recreate the colored patterns on the grid. Click the active cells to cycle through colors until your grid exactly matches the target pattern.</p>
                 <div className="flex gap-4">
                     <Button onClick={handleStartGame} className="text-lg py-3 px-8">Start Game</Button>
@@ -142,29 +144,27 @@ const PatternChallengeGame: React.FC = () => {
     }
 
     const GameContent = () => (
-         <div className="grid grid-cols-2 gap-4 md:gap-6">
+         <div className={`grid grid-cols-2 gap-6 md:gap-10 transition-all duration-300 ${isGlitching ? 'animate-glitch' : ''}`}>
             <div>
-                <h3 className="text-center font-semibold mb-2 text-brand-text-muted">Target Pattern</h3>
-                <div className="grid grid-cols-4 gap-1.5 p-2 bg-black/20 rounded-md">
+                <h3 className="text-[10px] font-black text-center mb-3 text-brand-text-muted uppercase tracking-[0.2em]">Target Pattern</h3>
+                <div className="grid grid-cols-4 gap-2 p-3 bg-black/40 rounded-xl border border-white/5 shadow-2xl">
                     {targetPattern.map((colorIndex, i) => (
-                        <div key={i} className={`aspect-square rounded-md transition-colors ${cellColors[colorIndex || 0]}`} />
+                        <div key={i} className={`aspect-square rounded-lg transition-all duration-500 ${cellColors[colorIndex || 0]}`} />
                     ))}
                 </div>
             </div>
             <div>
-                <h3 className="text-center font-semibold mb-2 text-brand-text-muted">Your Grid</h3>
-                <div className="grid grid-cols-4 gap-1.5 p-2 bg-black/20 rounded-md">
+                <h3 className="text-[10px] font-black text-center mb-3 text-brand-text-muted uppercase tracking-[0.2em]">Your Grid</h3>
+                <div className="grid grid-cols-4 gap-2 p-3 bg-black/40 rounded-xl border border-white/5 shadow-2xl">
                     {userGrid.map((colorIndex, i) => {
                         const isError = errorCellIndex === i;
-                        const errorClass = isError ? '!bg-red-500 shadow-[0_0_15px_2px_theme(colors.red.500)]' : '';
-                        const canClick = targetPattern[i] !== 0;
+                        const errorClass = isError ? '!bg-red-500 !border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.8)]' : '';
                         return (
                              <button
                                 key={i}
                                 onClick={() => handleCellClick(i)}
                                 aria-label={`Grid cell ${i + 1}`}
-                                disabled={!canClick}
-                                className={`aspect-square rounded-md transition-all duration-100 ${errorClass} ${cellColors[colorIndex]} ${canClick ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed opacity-50'}`}
+                                className={`aspect-square rounded-lg transition-all duration-200 ${errorClass} ${cellColors[colorIndex]} cursor-pointer hover:scale-105 active:scale-95 hover:brightness-125`}
                             />
                         )
                     })}
@@ -178,10 +178,10 @@ const PatternChallengeGame: React.FC = () => {
             <div>
                 <div className="flex justify-between items-center mb-4 text-brand-text-muted">
                     <div className="flex items-center gap-4">
-                       <span className="font-bold text-lg">Score: <span className="text-white">{score}</span></span>
-                       <span className="font-bold text-lg">Level: <span className="text-white">{level}</span></span>
+                       <span className="font-bold text-lg">Score: <span className="text-brand-text">{score}</span></span>
+                       <span className="font-bold text-lg">Level: <span className="text-brand-text">{level}</span></span>
                     </div>
-                    <span className={`font-bold text-lg flex items-center gap-1 ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                    <span className={`font-bold text-lg flex items-center gap-1 ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-brand-text'}`}>
                         <Timer size={18} /> {timeLeft}s
                     </span>
                 </div>
@@ -190,7 +190,7 @@ const PatternChallengeGame: React.FC = () => {
                     {gameState === 'gameOver' ? (
                          <div className="flex flex-col items-center justify-center h-full bg-brand-bg rounded-lg p-4">
                              <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
-                             <h2 className="text-3xl font-bold text-white">Game Over</h2>
+                             <h2 className="text-3xl font-bold text-brand-text">Game Over</h2>
                              <p className="text-brand-text-muted mt-2">Final Score: {score}</p>
                              <Button onClick={handleStartGame} className="mt-6">Play Again</Button>
                          </div>

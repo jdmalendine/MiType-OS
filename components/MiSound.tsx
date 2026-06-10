@@ -1,133 +1,42 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import Card from './Card';
 import Button from './Button';
 import { Volume2, Play, Pause } from 'lucide-react';
 import NoiseImage from './NoiseImage';
-
-type NoiseType = 'pink' | 'brown' | 'white';
+import { useNoise, NoiseType } from './NoiseProvider';
 
 const NoiseGenerator: React.FC<{ type: NoiseType, title: string, description: string, color: string }> = ({ type, title, description, color }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.5);
-
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const gainNodeRef = useRef<GainNode | null>(null);
-    const noiseNodeRef = useRef<AudioWorkletNode | ScriptProcessorNode | null>(null);
-
-    const createNoiseNode = useCallback((context: AudioContext): ScriptProcessorNode => {
-        const bufferSize = 4096;
-        let lastOut = 0;
-        let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0; // For pink noise
-
-        const node = context.createScriptProcessor(bufferSize, 1, 1);
-        node.onaudioprocess = (e) => {
-            const output = e.outputBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                if (type === 'white') {
-                    output[i] = Math.random() * 2 - 1;
-                } else if (type === 'brown') {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; // brown noise is quiet
-                } else { // pink
-                     const white = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + white * 0.0555179;
-                    b1 = 0.99332 * b1 + white * 0.0750759;
-                    b2 = 0.96900 * b2 + white * 0.1538520;
-                    b3 = 0.86650 * b3 + white * 0.3104856;
-                    b4 = 0.55000 * b4 + white * 0.5329522;
-                    b5 = -0.7616 * b5 - white * 0.0168980;
-                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    output[i] *= 0.11;
-                    b6 = white * 0.115926;
-                }
-            }
-        };
-        return node;
-    }, [type]);
-
-    const start = useCallback(() => {
-        if (!audioContextRef.current) {
-            // @ts-ignore
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            audioContextRef.current = context;
-        }
-        const context = audioContextRef.current;
-        if (context.state === 'suspended') {
-            context.resume();
-        }
-
-        const gainNode = context.createGain();
-        gainNode.gain.setValueAtTime(volume, context.currentTime);
-        gainNode.connect(context.destination);
-        gainNodeRef.current = gainNode;
-        
-        const noiseNode = createNoiseNode(context);
-        noiseNode.connect(gainNode);
-        noiseNodeRef.current = noiseNode;
-
-        setIsPlaying(true);
-    }, [volume, createNoiseNode]);
-
-    const stop = useCallback(() => {
-        if (noiseNodeRef.current) {
-            noiseNodeRef.current.disconnect();
-            noiseNodeRef.current = null;
-        }
-        if (gainNodeRef.current) {
-            gainNodeRef.current.disconnect();
-            gainNodeRef.current = null;
-        }
-        // Do not close context, as it might be shared or reused
-        setIsPlaying(false);
-    }, []);
-
-    const togglePlay = () => {
-        if (isPlaying) {
-            stop();
-        } else {
-            start();
-        }
-    };
-    
-    useEffect(() => {
-        if (gainNodeRef.current && audioContextRef.current) {
-            gainNodeRef.current.gain.setValueAtTime(volume, audioContextRef.current.currentTime);
-        }
-    }, [volume]);
-    
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-           stop();
-           if (audioContextRef.current) {
-               audioContextRef.current.close();
-           }
-        }
-    }, [stop]);
+    const { states, togglePlay, setVolume } = useNoise();
+    const { isPlaying, volume } = states[type];
 
     return (
-        <Card className="flex flex-col">
-            <h3 className="text-xl font-bold mb-2">{title}</h3>
-            <div className="w-full aspect-video rounded-lg overflow-hidden mb-4">
+        <Card className="flex flex-col h-full group">
+            <h3 className="text-lg font-black mb-4 font-header tracking-tight italic group-hover:text-brand-primary transition-colors">{title}</h3>
+            <div className="w-full aspect-video rounded-xl overflow-hidden mb-6 border border-brand-border/20 shadow-inner relative">
                 <NoiseImage color={color} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
             </div>
-            <p className="text-brand-text-muted flex-grow">{description}</p>
-            <div className="mt-4 flex items-center gap-4">
-                <Button onClick={togglePlay} className="p-3">
-                    {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+            <p className="text-sm text-brand-text-muted flex-grow leading-relaxed font-medium">{description}</p>
+            <div className="mt-6 flex items-center gap-4">
+                <Button onClick={() => togglePlay(type)} className="!p-4 rounded-xl shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                    {isPlaying ? <Pause size={24} /> : <Play size={24} />}
                 </Button>
-                <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={(e) => setVolume(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-brand-primary"
-                    aria-label={`${title} volume`}
-                />
+                <div className="flex-grow space-y-2">
+                    <div className="flex justify-between text-[10px] font-data text-brand-text-muted uppercase tracking-widest">
+                        <span>Volume</span>
+                        <span>{Math.round(volume * 100)}%</span>
+                    </div>
+                    <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={volume}
+                        onChange={(e) => setVolume(type, parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-brand-primary hover:accent-brand-primary/80 transition-all"
+                        aria-label={`${title} volume`}
+                    />
+                </div>
             </div>
         </Card>
     );
@@ -136,30 +45,37 @@ const NoiseGenerator: React.FC<{ type: NoiseType, title: string, description: st
 
 const MiSound: React.FC = () => {
     return (
-        <div className="space-y-8">
+        <div className="space-y-10">
+             <div className="flex items-center gap-4 text-3xl font-black font-header tracking-tighter italic">
+                <div className="p-3 glass-panel rounded-xl text-brand-primary shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                    <Volume2 size={32} />
+                </div>
+                <h1>MISOUND MODULE</h1>
+            </div>
+
             <Card>
-                <h1 className="text-2xl font-bold mb-2 flex items-center gap-2"><Volume2 /> MiSound Module</h1>
-                <p className="text-brand-text-muted">Select and control ambient soundscapes to enhance your focus or promote relaxation. All sounds are generated in real-time.</p>
+                <h2 className="text-2xl font-black mb-4 flex items-center gap-3 font-header tracking-tight italic"><Volume2 className="text-brand-primary" /> NEURAL SOUNDSCAPES</h2>
+                <p className="text-brand-text-muted leading-relaxed font-medium max-w-3xl">Select and control ambient soundscapes to enhance your focus or promote relaxation. All sounds are generated in real-time using high-fidelity neural synthesis.</p>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <NoiseGenerator
                     type="pink"
-                    title="Pink Noise"
+                    title="PINK NOISE"
                     description="Reduces the difference between high and low frequencies, making it ideal for focus and blocking out distracting sounds."
-                    color="#FFC0CB" // Himalayan Pink Salt
+                    color="#FFC0CB"
                 />
                 <NoiseGenerator
                     type="brown"
-                    title="Brown Noise"
+                    title="BROWN NOISE"
                     description="A deeper, rumbling sound. Excellent for relaxation, meditation, and improving sleep quality."
-                    color="#A52A2A" // Brown
+                    color="#A52A2A"
                 />
                 <NoiseGenerator
                     type="white"
-                    title="White Noise"
+                    title="WHITE NOISE"
                     description="Contains all audible frequencies at equal intensity, creating a 'hiss' that can effectively mask other sounds."
-                    color="#FFFFFF" // White
+                    color="#FFFFFF"
                 />
             </div>
         </div>

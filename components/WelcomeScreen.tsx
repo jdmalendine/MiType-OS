@@ -10,7 +10,7 @@ import Logo from './Logo';
 const SECRET_KEY = "MiType-Static-Secret-Key-For-Demo";
 
 const WelcomeScreen: React.FC<{
-    onChoice: (choice: 'assessment' | 'dashboard') => void;
+    onChoice: (choice: 'assessment' | 'dashboard' | 'clinician') => void;
     isProfileComplete: boolean;
     onImportProfile: (data: UserProfile) => void;
 }> = ({ onChoice, isProfileComplete, onImportProfile }) => {
@@ -56,32 +56,35 @@ const WelcomeScreen: React.FC<{
 
     return (
         <>
-            <Card className="max-w-md mx-auto text-center">
-                <div className="flex justify-center mb-4">
-                    <Logo size={64} />
+            <Card className="max-w-lg mx-auto text-center p-12 glass-panel border-brand-primary/30">
+                <div className="flex justify-center mb-8">
+                    <Logo size={120} />
                 </div>
-                <h1 className="text-3xl font-bold mb-2">MiType+ Cognitive OS</h1>
-                <p className="text-brand-text-muted mb-8">Welcome to your personal dashboard for self-awareness and growth. Choose your path to begin.</p>
-                <div className="space-y-4">
-                    <Button onClick={() => onChoice('assessment')} className="w-full text-lg py-3">
+                <h1 className="text-5xl font-extrabold mb-6 font-header tracking-tight">MiType+ OS</h1>
+                <p className="text-brand-text-muted mb-12 text-xl font-light leading-relaxed">Welcome to your personal dashboard for self-awareness and growth. Choose your path to begin.</p>
+                <div className="space-y-6">
+                    <Button onClick={() => onChoice('assessment')} className="w-full text-xl py-4 rounded-2xl">
                         {isProfileComplete ? 'Retake Assessment' : 'Start Your Assessment'}
                     </Button>
                     <Button
                         onClick={() => onChoice('dashboard')}
                         variant="secondary"
-                        className="w-full text-lg py-3"
+                        className="w-full text-xl py-4 rounded-2xl"
                         disabled={!isProfileComplete}
                         aria-disabled={!isProfileComplete}
                     >
                         Go to OS Dashboard
                     </Button>
                 </div>
-                <div className="mt-6">
-                    <button onClick={() => setIsImportModalOpen(true)} className="text-sm text-brand-primary hover:underline">
+                <div className="mt-10 flex flex-col gap-4">
+                    <button onClick={() => setIsImportModalOpen(true)} className="text-brand-primary hover:text-brand-primary-hover transition-colors font-medium">
                         Have an export code? Import profile.
                     </button>
+                    <button onClick={() => onChoice('clinician')} className="text-brand-text-muted hover:text-brand-primary transition-colors text-[10px] font-black uppercase tracking-[0.3em] opacity-40 hover:opacity-100">
+                        Clinician Access
+                    </button>
                 </div>
-                {!isProfileComplete && <p className="text-xs text-brand-text-muted mt-4">The OS Dashboard will be available once you complete the assessment.</p>}
+                {!isProfileComplete && <p className="text-sm text-brand-text-muted mt-8 opacity-60">The OS Dashboard will be available once you complete the assessment.</p>}
             </Card>
 
             <Modal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} title="Import Profile">
