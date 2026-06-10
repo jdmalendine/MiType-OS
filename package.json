@@ -27,3 +27,8 @@
     "vite": "^6.2.0"
   }
 }
+
+"repository": {
+  "type": "git",
+  "url": "git+https://github.com/jdmalendine/MiType-OS.git"
+}
