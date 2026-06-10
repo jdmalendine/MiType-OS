@@ -584,3 +584,56 @@ if __name__ == "__main__":
     print("\nAll available profiles:")
     for profile in all_profiles:
         print(f"- {profile}")
+
+
+def determine_mi_type(hbdi_scores=None, mbti_scores=None):
+    """
+    Scores Mi Type profiles against HBDI and MBTI tallies produced from the
+    score_maps in mi_type_assessments.py.
+
+    This bridges the rich profile data (overviews, strengths, egotends,
+    highertends, change_threshold + the hbdi_archetype / mbti_archetype tags)
+    to actual assessment results.
+
+    Args:
+        hbdi_scores: {"hbdi_a": int, ... "hbdi_d": int}
+        mbti_scores: all 8 keys mbti_e/i/s/n/t/f/j/p
+
+    Returns:
+        list[(name, score, profile_dict)] best match first.
+    """
+    if hbdi_scores is None:
+        hbdi_scores = {}
+    if mbti_scores is None:
+        mbti_scores = {}
+
+    # Top HBDI letters
+    hbdi_sorted = sorted(
+        ((k.replace("hbdi_", "").upper(), v) for k, v in hbdi_scores.items()),
+        key=lambda x: x[1], reverse=True
+    )
+    user_hbdi = [let for let, val in hbdi_sorted[:2] if val > 0]
+
+    # MBTI winners per dimension
+    pairs = [("e", "i"), ("s", "n"), ("t", "f"), ("j", "p")]
+    user_mbti = []
+    for hi, lo in pairs:
+        if mbti_scores.get("mbti_" + hi, 0) >= mbti_scores.get("mbti_" + lo, 0):
+            user_mbti.append(hi.upper())
+        else:
+            user_mbti.append(lo.upper())
+
+    # Overlap score vs profile archetypes
+    scored = []
+    for name, prof in MI_TYPE_PROFILES.items():
+        sc = 0
+        for let in user_hbdi:
+            if let in prof.get("hbdi_archetype", []):
+                sc += 2
+        for let in user_mbti:
+            if let in prof.get("mbti_archetype", []):
+                sc += 1
+        scored.append((name, sc, prof))
+
+    scored.sort(key=lambda t: t[1], reverse=True)
+    return scored
