@@ -4,48 +4,72 @@ Personal Mi Type assessment system + Tonal Flow Map (TFM) analysis tools.
 
 ## Installation
 
+### From PyPI (once published)
+
 ```bash
-pip install -r requirements.txt
+pip install mi-type
 ```
 
-Core requirements (used by `mite.py` and TFM analysis):
-- vaderSentiment (for VADER sentiment in TFM)
-- nltk (for VADER lexicon)
-- numpy (for sequence analysis in TFM)
+With TFM extras (recommended for full functionality):
 
-The main Mi Type assessment (`main.py`) is mostly stdlib + local modules and will run without the above, but TFM features and `mite.py` need them.
+```bash
+pip install "mi-type[tfm]"
+```
 
-`mite.py` includes a `check_dependencies()` helper that gives exact pip instructions and even attempts the NLTK data download.
+### From source (development)
 
-## What's here
+```bash
+git clone https://github.com/jdmalendine/MiType-OS.git
+cd MiType-OS
+pip install -e ".[tfm]"
+```
 
-- **Modular core**
-  - `mi_type_assessments.py` — Question banks (HBDI-style, MBTI-style, custom)
-  - `mi_type_profiles.py` — Detailed Mi Type profiles (strengths, egotends, higher tends, change thresholds, archetype mappings)
-  - `main.py` — Main console app using the modules
-  - `mite.py` — Larger combined TFM + Mi Type script (v10.x)
+Core requirements for TFM features:
+- vaderSentiment
+- nltk (with VADER lexicon)
+- numpy
 
-- **Legacy / earlier versions**
-  - `originals/Mityper.py` — The original standalone two-test interactive assessor you pointed at
-  - `tfm/` — Earlier TFM (Tonal Flow Map) experiments
+The pure Mi Type assessment works with just the standard library.
 
-- **Other experiments**
-  - `mitime.py`, `Newtype.py`, `assessment_console_app.py`, `ripple_animation.py`, `mainn.py`
-  - `App/` — Possible web/server experiment
+## Usage
 
-- **Data**
-  - `saves/` — Example saved profiles/schedules
-  - `JD.json`, `Profile Library.txt`
+After installation you get two command-line tools:
 
-## Quick start (Python 3)
+```bash
+# Main Mi Type Assessment (HBDI + MBTI style + rich profiles)
+mitype
+
+# Combined TFM + Mi Type system (v10.x)
+mite
+```
+
+You can also run as a module:
+
+```bash
+python -m mi_type
+```
+
+From source tree (without installing):
 
 ```bash
 python main.py
-# or
 python mite.py
 ```
 
-Some scripts require extra packages (vaderSentiment, nltk, numpy). The newer scripts (mite.py) will tell you exactly what to `pip install`.
+## What's included
+
+- **Core library** (`import mi_type`)
+  - `assessments` — Question banks (HBDI-style, MBTI-style)
+  - `profiles` — 24+ detailed Mi Type profiles with strengths, egotends, change thresholds, and archetype mappings
+  - `determine_mi_type()` — Scoring bridge that matches assessment results to the rich profiles
+
+- Full interactive console applications with the above logic.
+
+See the source `src/mi_type/` for the reusable components.
+
+## Git practice notes
+
+This repository is also used for learning clean git workflows (feature branches, logical commits, proper merges, packaging, etc.).
 
 ## Git practice notes
 
