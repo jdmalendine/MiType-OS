@@ -2,6 +2,21 @@
 
 Personal Mi Type assessment system + Tonal Flow Map (TFM) analysis tools.
 
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+Core requirements (used by `mite.py` and TFM analysis):
+- vaderSentiment (for VADER sentiment in TFM)
+- nltk (for VADER lexicon)
+- numpy (for sequence analysis in TFM)
+
+The main Mi Type assessment (`main.py`) is mostly stdlib + local modules and will run without the above, but TFM features and `mite.py` need them.
+
+`mite.py` includes a `check_dependencies()` helper that gives exact pip instructions and even attempts the NLTK data download.
+
 ## What's here
 
 - **Modular core**

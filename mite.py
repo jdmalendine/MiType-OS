@@ -37,7 +37,6 @@ def check_dependencies():
     except ImportError:
         print("[!] nltk not found.")
         missing_packages.append("nltk")
-        all_packages.append("nltk")
         all_packages_found = False
 
     # Check NumPy
