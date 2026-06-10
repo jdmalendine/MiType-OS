@@ -42,3 +42,11 @@ logs/
 # Temporary / test
 *.tmp
 *.bak
+# Packaging / distribution
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-wheel-metadata/
+MANIFEST
