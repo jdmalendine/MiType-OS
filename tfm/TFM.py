@@ -266,7 +266,7 @@ def analyze_tfm(text, initial_tfm=0.0, initial_trend="neutral"):
         "out-back", "out-bound", "out-dated", "out-going", "out-group", "out-of-date", "out-of-doors",
         "out-of-pocket", "out-of-school", "out-of-sorts", "out-of-state"]
     
-negative_words = [
+    negative_words = [
     "sad", "angry", "fear", "bad", "terrible", "awful", "negative", "hate", "depressed",
         "miserable", "unhappy", "sorrowful", "grief", "mournful", "despair", "hopeless", "pessimistic",
         "disappointed", "frustrated", "irritated", "annoyed", "resentful", "bitter", "cynical", "skeptical",
