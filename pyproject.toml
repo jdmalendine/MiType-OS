@@ -7,7 +7,7 @@ name = "mi-type"
 version = "0.1.0"
 description = "Mi Type personal assessment system with Tonal Flow Map (TFM) analysis tools."
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
   {name = "Jordaniel Malendine"}
 ]
