@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import BackupDashboard from './BackupDashboard';
-import { Eye, FileKey, Settings, FileText, Download, Copy, Terminal, Database, ShieldCheck } from 'lucide-react';
+import { Eye, FileKey, Settings, FileText, Download, Copy, Terminal, Database, ShieldCheck, Watch } from 'lucide-react';
 import Card from './Card';
 import Button from './Button';
 import { generatePDF } from '../services/pdfService';
+import { exportWatchProfileAsJson } from '../services/watchProfile';
 
 interface SettingsDashboardProps {
     userProfile: UserProfile;
@@ -23,6 +24,7 @@ const SettingsDashboard: React.FC<SettingsDashboardProps> = ({ userProfile, onIm
         { id: 'backup', label: 'Backup & Restore', icon: FileKey },
         { id: 'report', label: 'Reports', icon: FileText },
         { id: 'strings', label: 'Profile Strings', icon: Terminal },
+        { id: 'wearables', label: 'Watch Companion', icon: Watch },
     ];
 
     const generateMtraString = () => {
@@ -214,6 +216,60 @@ const SettingsDashboard: React.FC<SettingsDashboardProps> = ({ userProfile, onIm
                         >
                             <Database size={24} className="mr-3" /> EXPORT ALL STRINGS AS JSON
                         </Button>
+                    </div>
+                );
+            case 'wearables':
+                const watchJson = exportWatchProfileAsJson(userProfile);
+                const handleCopyWatch = () => {
+                    navigator.clipboard.writeText(watchJson).then(() => {
+                        setCopyStatus('watch');
+                        setTimeout(() => setCopyStatus(null), 2000);
+                    });
+                };
+
+                return (
+                    <div className="space-y-8 animate-fade-in">
+                        <Card className="glass-panel border-l-4 border-brand-primary">
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 rounded-xl bg-brand-primary/10 text-brand-primary">
+                                    <Watch size={28} />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black mb-2 font-header tracking-tight uppercase italic">SMARTWATCH COMPANION</h2>
+                                    <p className="text-brand-text-muted font-medium leading-relaxed">
+                                        Export a lightweight, glanceable version of your current MiType profile for <strong>Galaxy Watch (Wear OS)</strong> or Apple Watch infographics.
+                                        This is designed as a <span className="text-brand-primary">supplement</span> — it pulls your Base Archetype, Egotend, Highertend, state balance, and quick activations directly from your main assessment results. Small JSON is ideal for the Wear OS Data Layer.
+                                    </p>
+                                </div>
+                            </div>
+                        </Card>
+
+                        <Card>
+                            <h3 className="font-black uppercase tracking-[2px] text-xs mb-3 text-brand-text-muted">What gets sent to the watch</h3>
+                            <ul className="text-sm space-y-1.5 text-brand-text-muted font-medium list-disc pl-5">
+                                <li>MBTI + Archetype name + Core Drive</li>
+                                <li>Egotend (stress mode) name + key challenge/warning</li>
+                                <li>Highertend (flow mode) name + top strength + 3 quick activations / micro-goals</li>
+                                <li>Current state balance (for gauges / color coding)</li>
+                                <li>Change Threshold + top suppressors</li>
+                            </ul>
+                        </Card>
+
+                        <Button 
+                            onClick={handleCopyWatch}
+                            className="w-full py-6 text-lg font-black tracking-widest uppercase flex items-center justify-center gap-3"
+                        >
+                            <Copy size={20} />
+                            {copyStatus === 'watch' ? 'COPIED TO CLIPBOARD — PASTE INTO YOUR WATCH APP' : 'COPY COMPACT WATCH PROFILE (JSON)'}
+                        </Button>
+
+                        <div className="text-[10px] text-brand-text-muted font-data bg-black/40 p-4 rounded-xl border border-white/10">
+                            This JSON is intentionally small and self-contained — perfect for Wear OS Data Layer (recommended for Galaxy Watch) or Watch Connectivity on iOS.
+                            <br /><br />
+                            <strong>For Galaxy Watch 4 Classic (Wear OS):</strong> Hard-code this JSON while building your watch app with Gemini. Later, build the Android version of this app (`npx cap open android`), add a Wear module, and use the Data Layer API to push updates from the phone.
+                            <br /><br />
+                            Future: We can add a native "Sync to Wear" action that automatically pushes the latest profile.
+                        </div>
                     </div>
                 );
             default:

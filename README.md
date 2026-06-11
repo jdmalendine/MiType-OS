@@ -75,6 +75,21 @@ npx cap open android  # Android Studio (Android + Wear OS)
 
 See `NATIVE_APPS_GUIDE.md` for detailed porting of logic, data (use `mbti_profiles.json`), and building companion watch apps.
 
+**Watch Companion Data Export (new):**
+In the main app, go to **Settings → Watch Companion** tab. It generates a tiny, self-contained JSON with exactly what you need for infographics:
+- Base archetype + MBTI + core drive
+- Egotend (name + one key challenge/warning)
+- Highertend (name + top strength + 3 quick activations / micro-goals)
+- `stateBalance` for gauges/coloring
+- Change threshold + top suppressors
+
+**For Galaxy Watch 4 Classic (Wear OS):**
+- Copy the JSON from the Watch Companion tab and hard-code it while prototyping your watch app (great for Gemini-assisted development).
+- For live sync: Build the Android app (`npx cap open android`), add a Wear OS module, and use the **Data Layer API** to push the profile from phone → watch.
+- The compact JSON is perfect for Data Layer (efficient for background sync, tiles, and complications).
+
+The source of truth remains the main phone/web profile. See `services/watchProfile.ts` for the exact `WatchProfile` TypeScript interface and helper.
+
 ## Smart Watch Companions
 
 - **Apple Watch**: Add a Watch App target in the Xcode iOS project (SwiftUI). Use Watch Connectivity to sync profiles, assessment results, and TFM data from the iPhone app.
